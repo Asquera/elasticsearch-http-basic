@@ -17,3 +17,10 @@ http.basic.password = "my_password"
 ```
 
 Be aware that the password is stored in plain text.
+
+## Testing
+
+```
+$ curl -v --user my_username:my_password localhost:9200 # works
+$ curl -v --user my_username:password localhost:9200 # sends 403
+```
