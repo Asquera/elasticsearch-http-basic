@@ -4,7 +4,7 @@ This plugin provides an extension of ElasticSearchs HTTP Transport module to ena
 
 ## Installation
 
-Copy `elasticsearch-http-basic-<version>.jar` to `plugins/http-basic`. Or use `bin/plugin` to do so.
+Download the current version from https://github.com/Asquera/elasticsearch-http-basic/downloads and copy it to `plugins/http-basic`.
     
 ## Configuration
 
@@ -24,3 +24,7 @@ Be aware that the password is stored in plain text.
 $ curl -v --user my_username:my_password localhost:9200 # works
 $ curl -v --user my_username:password localhost:9200 # sends 403
 ```
+
+## Issues
+
+Please file your issue here: https://github.com/Asquera/elasticsearch-http-basic/issues
