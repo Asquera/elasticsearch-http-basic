@@ -46,6 +46,11 @@ public class HttpBasicServer extends HttpServer {
         }
         
         String[] split = authHeader.split(" ");
+
+        if (!split[0].equals("Basic")){
+            return false;
+        }
+
         String decoded = null;
         
         try {
