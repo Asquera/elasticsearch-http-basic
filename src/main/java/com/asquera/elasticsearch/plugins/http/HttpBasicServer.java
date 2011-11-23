@@ -14,6 +14,9 @@ import static org.elasticsearch.rest.RestStatus.*;
 
 import java.io.IOException;
 
+/**
+ * @author Florian Gilcher (florian.gilcher@asquera.de)
+ */
 public class HttpBasicServer extends HttpServer {
     private final String user;
     private final String password;
