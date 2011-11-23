@@ -11,7 +11,7 @@ Copy `elasticsearch-http-basic-<version>.jar` to `plugins/http-basic`. Or use `b
 The plugin is disabled by default. Enabling basic authorization will disable the default HTTP Transport module.
 
 ```
-http.basic.enable = true
+http.basic.enabled = true
 http.basic.user = "my_username"
 http.basic.password = "my_password"
 ```
