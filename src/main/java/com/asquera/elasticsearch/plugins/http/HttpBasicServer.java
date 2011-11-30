@@ -34,7 +34,7 @@ public class HttpBasicServer extends HttpServer {
         if (authBasic(request)) {
             super.internalDispatchRequest(request, channel);
         } else {
-            channel.sendResponse(new StringRestResponse(FORBIDDEN));
+            channel.sendResponse(new StringRestResponse(UNAUTHORIZED));
         }
     }
     
