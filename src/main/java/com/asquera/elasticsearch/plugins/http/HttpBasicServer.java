@@ -8,6 +8,7 @@ import org.elasticsearch.rest.RestController;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.Base64;
 
+import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.StringRestResponse;
 
 import static org.elasticsearch.rest.RestStatus.*;
@@ -31,11 +32,15 @@ public class HttpBasicServer extends HttpServer {
     }
     
     public void internalDispatchRequest(final HttpRequest request, final HttpChannel channel) {
-        if (authBasic(request)) {
+        if (shouldLetPass(request) || authBasic(request)) {
             super.internalDispatchRequest(request, channel);
         } else {
             channel.sendResponse(new StringRestResponse(UNAUTHORIZED));
         }
+    }
+
+    private boolean shouldLetPass(final HttpRequest request) {
+        return (request.method() == RestRequest.Method.GET) && request.path().equals("/");
     }
     
     private boolean authBasic(final HttpRequest request){
