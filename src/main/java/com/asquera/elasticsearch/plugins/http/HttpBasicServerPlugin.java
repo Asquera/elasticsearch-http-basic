@@ -4,10 +4,6 @@ import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.inject.Module;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.plugins.AbstractPlugin;
-import org.elasticsearch.http.HttpServerModule;
-import org.elasticsearch.http.HttpServer;
-import com.asquera.elasticsearch.plugins.http.HttpBasicServer;
-import com.asquera.elasticsearch.plugins.http.HttpBasicServerModule;
 import org.elasticsearch.common.component.LifecycleComponent;
 import org.elasticsearch.common.settings.ImmutableSettings;
 

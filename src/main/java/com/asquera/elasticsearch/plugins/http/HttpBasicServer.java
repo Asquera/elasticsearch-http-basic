@@ -19,18 +19,20 @@ import java.io.IOException;
  * @author Florian Gilcher (florian.gilcher@asquera.de)
  */
 public class HttpBasicServer extends HttpServer {
+
     private final String user;
     private final String password;
-    
+
     @Inject public HttpBasicServer(Settings settings, Environment environment, HttpServerTransport transport,
-                              RestController restController,
-                              NodeService nodeService) {
-        super(settings, environment, transport, restController, nodeService);                                  
-    
+            RestController restController,
+            NodeService nodeService) {
+        super(settings, environment, transport, restController, nodeService);
+
         this.user = settings.get("http.basic.user");
         this.password = settings.get("http.basic.password");
     }
-    
+
+    @Override
     public void internalDispatchRequest(final HttpRequest request, final HttpChannel channel) {
         if (shouldLetPass(request) || authBasic(request)) {
             super.internalDispatchRequest(request, channel);
@@ -42,38 +44,27 @@ public class HttpBasicServer extends HttpServer {
     private boolean shouldLetPass(final HttpRequest request) {
         return (request.method() == RestRequest.Method.GET) && request.path().equals("/");
     }
-    
-    private boolean authBasic(final HttpRequest request){
+
+    private boolean authBasic(final HttpRequest request) {
         String authHeader = request.header("Authorization");
-        
-        if (authHeader == null) {
+        if (authHeader == null)
             return false;
-        }
-        
+
         String[] split = authHeader.split(" ");
-
-        if (!split[0].equals("Basic")){
+        if (split.length < 1 || !split[0].equals("Basic"))
             return false;
-        }
 
-        String decoded = null;
-        
+        String decoded;
         try {
             decoded = new String(Base64.decode(split[1]));
         } catch (IOException e) {
             logger.warn("Decoding of basic auth failed.");
             return false;
         }
-        
-        String[] user_and_password = decoded.split(":");
-        String given_user = user_and_password[0];
-        String given_pass = user_and_password[1];
-        
-        if (this.user.equals(given_user) &&
-            this.password.equals(given_pass)) {
-            return true;
-        } else {
-            return false;
-        }
+
+        String[] userAndPassword = decoded.split(":");
+        String givenUser = userAndPassword[0];
+        String givenPass = userAndPassword[1];
+        return this.user.equals(givenUser) && this.password.equals(givenPass);
     }
 }
