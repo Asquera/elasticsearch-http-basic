@@ -10,7 +10,6 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import java.util.Collection;
 
 import static org.elasticsearch.common.collect.Lists.*;
-import org.elasticsearch.common.logging.Loggers;
 
 /**
  * @author Florian Gilcher (florian.gilcher@asquera.de)
@@ -49,11 +48,8 @@ public class HttpBasicServerPlugin extends AbstractPlugin {
     }
 
     @Override public Settings additionalSettings() {
-        Loggers.getLogger(getClass()).info("now {}", settings);
         if (settings.getAsBoolean("http.basic.enabled", enabledByDefault)) {
             return ImmutableSettings.settingsBuilder().
-                    put("http.basic.user", "admin").
-                    put("http.basic.password", "admin_pw").
                     put("http.enabled", false).                    
                     build();
         } else {

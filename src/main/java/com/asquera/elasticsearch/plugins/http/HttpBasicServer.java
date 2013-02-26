@@ -13,6 +13,10 @@ import org.elasticsearch.rest.RestRequest;
 import static org.elasticsearch.rest.RestStatus.*;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.rest.StringRestResponse;
 
 /**
@@ -22,27 +26,43 @@ public class HttpBasicServer extends HttpServer {
 
     private final String user;
     private final String password;
+    private final Set<String> whitelist;
+    private final String xForwardFor;
 
     @Inject public HttpBasicServer(Settings settings, Environment environment, HttpServerTransport transport,
             RestController restController,
             NodeService nodeService) {
         super(settings, environment, transport, restController, nodeService);
 
-        this.user = settings.get("http.basic.user");
-        this.password = settings.get("http.basic.password");
+        this.user = settings.get("http.basic.user", "admin");
+        this.password = settings.get("http.basic.password", "admin_pw");
+        this.whitelist = new HashSet<String>(Arrays.asList(
+                settings.getAsArray("http.basic.ipwhitelist",
+                new String[]{"localhost", "127.0.0.1"})));
+
+        this.xForwardFor = settings.get("http.basic.xforward", "");
+        Loggers.getLogger(getClass()).info("using {}:{} with whitelist {}, xforward {}",
+                user, password, whitelist, xForwardFor);
     }
 
     @Override
     public void internalDispatchRequest(final HttpRequest request, final HttpChannel channel) {
-        if (shouldLetPass(request) || authBasic(request)) {
+        if (authBasic(request) || isInIPWhitelist(request)) {
             super.internalDispatchRequest(request, channel);
-        } else {            
+        } else if (ping(request)) {
+            // If not authorized do not show version information etc
+            channel.sendResponse(new StringRestResponse(OK, "{\"pong\":{}}"));
+        } else {
+            String addr = getAddress(request);
+            Loggers.getLogger(getClass()).error("UNAUTHORIZED type {}, address {}, path {}, request {}, content {}",
+                    request.method(), addr, request.path(), request.params(), request.content().toUtf8());
             channel.sendResponse(new StringRestResponse(UNAUTHORIZED, "Authentication Required"));
         }
     }
 
-    private boolean shouldLetPass(final HttpRequest request) {
-        return (request.method() == RestRequest.Method.GET) && request.path().equals("/");
+    private boolean ping(final HttpRequest request) {
+        String path = request.path();
+        return (request.method() == RestRequest.Method.GET) && path.equals("/");
     }
 
     private boolean authBasic(final HttpRequest request) {
@@ -50,21 +70,41 @@ public class HttpBasicServer extends HttpServer {
         if (authHeader == null)
             return false;
 
-        String[] split = authHeader.split(" ");
-        if (split.length < 1 || !split[0].equals("Basic"))
+        String[] split = authHeader.split(" ", 2);
+        if (split.length != 2 || !split[0].equals("Basic"))
             return false;
 
-        String decoded;
+        String decoded = "";
         try {
             decoded = new String(Base64.decode(split[1]));
+            String[] userAndPassword = decoded.split(":", 2);
+            String givenUser = userAndPassword[0];
+            String givenPass = userAndPassword[1];
+            return this.user.equals(givenUser) && this.password.equals(givenPass);
         } catch (IOException e) {
-            logger.warn("Decoding of basic auth failed.");
+            logger.warn("Retrieving of user and password failed for " + decoded + " ," + e.getMessage());
             return false;
         }
+    }
 
-        String[] userAndPassword = decoded.split(":");
-        String givenUser = userAndPassword[0];
-        String givenPass = userAndPassword[1];
-        return this.user.equals(givenUser) && this.password.equals(givenPass);
+    private String getAddress(HttpRequest request) {
+        String addr;
+        if (xForwardFor.isEmpty())
+            addr = request.header("Host");
+        else
+            // "X-Forwarded-For"
+            addr = request.header(xForwardFor);
+
+        int portIndex = addr.indexOf(":");
+        if (portIndex >= 0)
+            addr = addr.substring(0, portIndex);
+        return addr;
+    }
+
+    private boolean isInIPWhitelist(HttpRequest request) {
+        String addr = getAddress(request);
+//        Loggers.getLogger(getClass()).info("address {}, path {}, request {}",
+//                addr, request.path(), request.params());
+        return whitelist.contains(addr);
     }
 }
