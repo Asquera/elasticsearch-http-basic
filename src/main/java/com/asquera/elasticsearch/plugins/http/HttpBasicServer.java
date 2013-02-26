@@ -9,11 +9,11 @@ import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.Base64;
 
 import org.elasticsearch.rest.RestRequest;
-import org.elasticsearch.rest.StringRestResponse;
 
 import static org.elasticsearch.rest.RestStatus.*;
 
 import java.io.IOException;
+import org.elasticsearch.rest.StringRestResponse;
 
 /**
  * @author Florian Gilcher (florian.gilcher@asquera.de)
@@ -36,8 +36,8 @@ public class HttpBasicServer extends HttpServer {
     public void internalDispatchRequest(final HttpRequest request, final HttpChannel channel) {
         if (shouldLetPass(request) || authBasic(request)) {
             super.internalDispatchRequest(request, channel);
-        } else {
-            channel.sendResponse(new StringRestResponse(UNAUTHORIZED));
+        } else {            
+            channel.sendResponse(new StringRestResponse(UNAUTHORIZED, "Authentication Required"));
         }
     }
 
