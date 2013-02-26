@@ -10,7 +10,6 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import java.util.Collection;
 
 import static org.elasticsearch.common.collect.Lists.*;
-import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 
 /**
