@@ -122,7 +122,9 @@ public class HttpBasicServer extends HttpServer {
      * specification mandates that browsers “preflight” the request, soliciting
      * supported methods from the server with an HTTP OPTIONS request
      */
-    private boolean allowOptionsForCORS(HttpRequest request) {
+    private boolean allowOptionsForCORS(HttpRequest request) {        
+        // in elasticsearch.yml set
+        // http.cors.allow-headers: "X-Requested-With, Content-Type, Content-Length, Authorization"
         if(request.method() == Method.OPTIONS) {
             Loggers.getLogger(getClass()).error("CORS type {}, address {}, path {}, request {}, content {}",
                     request.method(), getAddress(request), request.path(), request.params(), request.content().toUtf8());
