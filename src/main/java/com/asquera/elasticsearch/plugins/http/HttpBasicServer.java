@@ -63,7 +63,7 @@ public class HttpBasicServer extends HttpServer {
     @Override
     public void internalDispatchRequest(final HttpRequest request, final HttpChannel channel) {
         if (log)
-            logger.info("Authorization {}, host {}, xforward {}, path {}, isInWhitelist {}, Client-IP {}, X-Client-IP {}",
+            logger.info("Authorization:{}, host:{}, xforward:{}, path:{}, isInWhitelist:{}, Client-IP:{}, X-Client-IP:{}",
                     request.header("Authorization"), request.header("host"),
                     request.header(xForwardFor), request.path(), isInIPWhitelist(request),
                     request.header("X-Client-IP"), request.header("Client-IP"));
@@ -75,8 +75,8 @@ public class HttpBasicServer extends HttpServer {
             super.internalDispatchRequest(request, channel);
         } else {
             String addr = getAddress(request);
-            Loggers.getLogger(getClass()).error("UNAUTHORIZED type {}, address {}, path {}, request {}, content {}",
-                    request.method(), addr, request.path(), request.params(), request.content().toUtf8());
+            Loggers.getLogger(getClass()).error("UNAUTHORIZED type:{}, address:{}, path:{}, request:{}, content:{}, credentials:{}",
+                    request.method(), addr, request.path(), request.params(), request.content().toUtf8(), getDecoded(request));
             channel.sendResponse(new StringRestResponse(UNAUTHORIZED, "Authentication Required"));
         }
     }
@@ -86,7 +86,7 @@ public class HttpBasicServer extends HttpServer {
         return (request.method() == RestRequest.Method.GET) && path.equals("/");
     }
 
-    public String getDecoded(HttpRequest request) throws IOException {
+    public String getDecoded(HttpRequest request) {
         String authHeader = request.header("Authorization");
         if (authHeader == null)
             return "";
@@ -94,7 +94,11 @@ public class HttpBasicServer extends HttpServer {
         String[] split = authHeader.split(" ", 2);
         if (split.length != 2 || !split[0].equals("Basic"))
             return "";
-        return new String(Base64.decode(split[1]));
+        try {
+            return new String(Base64.decode(split[1]));
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     private boolean authBasic(final HttpRequest request) {
@@ -108,7 +112,7 @@ public class HttpBasicServer extends HttpServer {
                 if (this.user.equals(givenUser) && this.password.equals(givenPass))
                     return true;
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.warn("Retrieving of user and password failed for " + decoded + " ," + e.getMessage());
         }
         return false;
