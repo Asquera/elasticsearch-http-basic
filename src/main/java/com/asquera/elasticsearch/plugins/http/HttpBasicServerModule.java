@@ -1,7 +1,5 @@
 package com.asquera.elasticsearch.plugins.http;
 
-import org.elasticsearch.common.inject.AbstractModule;
-import com.asquera.elasticsearch.plugins.http.HttpBasicServer;
 import org.elasticsearch.http.HttpServerModule;
 import org.elasticsearch.common.settings.Settings;
 

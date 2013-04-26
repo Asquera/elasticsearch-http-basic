@@ -1,3 +1,6 @@
 *.class
 *.jar
 *.zip
+/target/
+*~
+deploy.sh
