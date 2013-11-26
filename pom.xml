@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.asquera.elasticsearch</groupId>
-    <artifactId>http-basic</artifactId>
-    <version>0.90.0-SNAPSHOT</version>
+    <artifactId>elasticsearch-http-basic</artifactId>
+    <version>1.0.3.1</version>
     <packaging>jar</packaging>
 
     <name>Basic Authentication Plugin</name>
@@ -12,7 +12,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <elasticsearch.version>0.90.0</elasticsearch.version>
+        <elasticsearch.version>0.90.7</elasticsearch.version>
     </properties>
 
     <dependencies>
@@ -21,7 +21,7 @@
             <artifactId>elasticsearch</artifactId>
             <version>${elasticsearch.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
@@ -54,7 +54,7 @@
                             <target>
                                 <zip basedir="${project.build.directory}"
                                      includes="${project.build.finalName}.jar"
-                                     destfile="${project.build.directory}/elasticsearch-${project.artifactId}-${elasticsearch.version}.zip" />
+                                     destfile="${project.build.directory}/${project.artifactId}-${project.version}.zip" />
                             </target>
                         </configuration>
                         <goals>
