@@ -1,6 +1,8 @@
 *.class
 *.jar
 *.zip
+/build/
 /target/
 *~
 deploy.sh
+.gradle

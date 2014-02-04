@@ -77,7 +77,10 @@ public class HttpBasicServer extends HttpServer {
             String addr = getAddress(request);
             Loggers.getLogger(getClass()).error("UNAUTHORIZED type:{}, address:{}, path:{}, request:{}, content:{}, credentials:{}",
                     request.method(), addr, request.path(), request.params(), request.content().toUtf8(), getDecoded(request));
-            channel.sendResponse(new StringRestResponse(UNAUTHORIZED, "Authentication Required"));
+
+            StringRestResponse response = new StringRestResponse(UNAUTHORIZED, "Authentication Required");
+            response.addHeader("WWW-Authenticate", "Basic realm=\"Restricted\"");
+            channel.sendResponse(response);
         }
     }
 
