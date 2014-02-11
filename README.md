@@ -4,6 +4,8 @@ This plugin provides an extension of ElasticSearchs HTTP Transport module to ena
 
 Requesting / does not request authentication to simplify health heck configuration.
 
+There is no way to configure this on a per index basis.
+
 ## Installation
 
 Download the current version from https://github.com/Asquera/elasticsearch-http-basic/releases and copy it to `plugins/http-basic`.
