@@ -6,7 +6,7 @@ Requesting / does not request authentication to simplify health heck configurati
 
 ## Installation
 
-Download the current version from https://github.com/Asquera/elasticsearch-http-basic/downloads and copy it to `plugins/http-basic`.
+Download the current version from https://github.com/Asquera/elasticsearch-http-basic/releases and copy it to `plugins/http-basic`.
     
 ## Configuration
 
