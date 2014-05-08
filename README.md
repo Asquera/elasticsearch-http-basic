@@ -6,6 +6,13 @@ Requesting / does not request authentication to simplify health heck configurati
 
 There is no way to configure this on a per index basis.
 
+## Version Mapping
+
+|     Http Basic Plugin       | elasticsearch         |
+|-----------------------------|-----------------------|
+| 1.1.0                       | 1.0.0                 |
+| 1.0.4(master)               | 0.90.7                |
+
 ## Installation
 
 Download the current version from https://github.com/Asquera/elasticsearch-http-basic/releases and copy it to `plugins/http-basic`.
