@@ -13,12 +13,16 @@ import org.elasticsearch.rest.RestRequest;
 import static org.elasticsearch.rest.RestStatus.*;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.rest.RestRequest.Method;
 import org.elasticsearch.rest.StringRestResponse;
+
+import com.asquera.elasticsearch.plugins.http.auth.Client;
+import com.asquera.elasticsearch.plugins.http.auth.InetAddressWhitelist;
+import com.asquera.elasticsearch.plugins.http.auth.ProxyChains;
+import com.asquera.elasticsearch.plugins.http.auth.XForwardedFor;
 
 // # possible http config
 // http.basic.user: admin
@@ -29,7 +33,7 @@ import org.elasticsearch.rest.StringRestResponse;
 // # EITHER $.ajaxSetup({ headers: { 'Authorization': "Basic " + credentials }});
 // # OR use beforeSend in  $.ajax({
 // http.cors.allow-headers: "X-Requested-With, Content-Type, Content-Length, Authorization"
-// 
+//
 /**
  * @author Florian Gilcher (florian.gilcher@asquera.de)
  * @author Peter Karich
@@ -38,8 +42,9 @@ public class HttpBasicServer extends HttpServer {
 
     private final String user;
     private final String password;
-    private final Set<String> whitelist;
-    private final String xForwardFor;
+    private final InetAddressWhitelist whitelist;
+    private final ProxyChains proxyChains;
+    private final String xForwardHeader;
     private final boolean log;
 
     @Inject public HttpBasicServer(Settings settings, Environment environment, HttpServerTransport transport,
@@ -49,44 +54,78 @@ public class HttpBasicServer extends HttpServer {
 
         this.user = settings.get("http.basic.user", "admin");
         this.password = settings.get("http.basic.password", "admin_pw");
-        this.whitelist = new HashSet<String>(Arrays.asList(
+        this.whitelist = new InetAddressWhitelist(
                 settings.getAsArray("http.basic.ipwhitelist",
-                new String[]{"localhost", "127.0.0.1"})));
+                  new String[]{"localhost", "127.0.0.1"}));
+        this.proxyChains = new ProxyChains(
+            settings.getAsArray(
+              "http.basic.trusted_proxy_chains", new String[]{""}));
 
-        // for AWS load balancers it is X-Forwarded-For -> hmmh does not work 
-        this.xForwardFor = settings.get("http.basic.xforward", "");
-        this.log = settings.getAsBoolean("http.basic.log", false);
-        Loggers.getLogger(getClass()).info("using {}:{} with whitelist {}, xforward {}",
-                user, password, whitelist, xForwardFor);
+        // for AWS load balancers it is X-Forwarded-For -> hmmh does not work
+        this.xForwardHeader = settings.get("http.basic.xforward", "");
+        this.log = settings.getAsBoolean("http.basic.log", true);
+        Loggers.getLogger(getClass()).info("using {}:{} with whitelist: {}, xforward header field: {}, trusted proxy chain: {}",
+                user, password, whitelist, xForwardHeader, proxyChains);
     }
 
     @Override
     public void internalDispatchRequest(final HttpRequest request, final HttpChannel channel) {
-        if (log)
-            logger.info("Authorization:{}, host:{}, xforward:{}, path:{}, isInWhitelist:{}, Client-IP:{}, X-Client-IP:{}",
-                    request.header("Authorization"), request.header("host"),
-                    request.header(xForwardFor), request.path(), isInIPWhitelist(request),
-                    request.header("X-Client-IP"), request.header("Client-IP"));
-
+        if (log) {
+          logRequest(request);
+        }
         // allow health check even without authorization
         if (healthCheck(request)) {
             channel.sendResponse(new StringRestResponse(OK, "{\"OK\":{}}"));
-        } else if (allowOptionsForCORS(request) || authBasic(request) || isInIPWhitelist(request)) {
+        } else if (authorized(request)) {
             super.internalDispatchRequest(request, channel);
         } else {
-            String addr = getAddress(request);
-            Loggers.getLogger(getClass()).error("UNAUTHORIZED type:{}, address:{}, path:{}, request:{}, content:{}, credentials:{}",
-                    request.method(), addr, request.path(), request.params(), request.content().toUtf8(), getDecoded(request));
-
-            StringRestResponse response = new StringRestResponse(UNAUTHORIZED, "Authentication Required");
-            response.addHeader("WWW-Authenticate", "Basic realm=\"Restricted\"");
-            channel.sendResponse(response);
+          logUnAuthorizedRequest(request);
+          StringRestResponse response = new StringRestResponse(UNAUTHORIZED, "Authentication Required");
+          response.addHeader("WWW-Authenticate", "Basic realm=\"Restricted\"");
+          channel.sendResponse(response);
         }
     }
 
     private boolean healthCheck(final HttpRequest request) {
         String path = request.path();
         return (request.method() == RestRequest.Method.GET) && path.equals("/");
+    }
+
+  /**
+   *
+   *
+   * @param request
+   * @return true if the request is authorized
+   */
+    private boolean authorized(final HttpRequest request) {
+      return allowOptionsForCORS(request) ||
+        authBasic(request) || ipAuthorized(request);
+    }
+
+  /**
+   *
+   *
+   * @param request
+   * @return true iff the client is authorized by ip
+   */
+    private boolean ipAuthorized(final HttpRequest request) {
+      boolean ipAuthorized = false;
+      String xForwardedFor = request.header(xForwardHeader);
+      Client client = new Client(getAddress(request),
+                            whitelist,
+                            new XForwardedFor(xForwardedFor),
+                            proxyChains);
+      ipAuthorized = client.isAuthorized();
+      if (ipAuthorized) {
+        if (log) {
+          String template = "Ip Authorized client: {}";
+          Loggers.getLogger(getClass()).info(template, client);
+        }
+      } else {
+        String template = "Ip Unauthorized client: {}";
+        Loggers.getLogger(getClass()).error(template, client);
+      }
+      return ipAuthorized;
     }
 
     public String getDecoded(HttpRequest request) {
@@ -121,33 +160,17 @@ public class HttpBasicServer extends HttpServer {
         return false;
     }
 
-    private String getAddress(HttpRequest request) {
-        String addr;
-        if (xForwardFor.isEmpty()) {
-            addr = request.header("Host");
-            addr = addr == null ? "" : addr;
-        } else {
-            addr = request.header(xForwardFor);
-            addr = addr == null ? "" : addr;
-            int addrIndex = addr.indexOf(',');
-            if (addrIndex >= 0)
-                addr = addr.substring(0, addrIndex);
-        }
 
-        int portIndex = addr.indexOf(":");
-        if (portIndex >= 0)
-            addr = addr.substring(0, portIndex);
-        return addr;
+  /**
+   *
+   *
+   * @param request
+   * @return the IP adress of the direct client
+   */
+    private InetAddress getAddress(HttpRequest request) {
+        return ((InetSocketAddress) request.getRemoteAddress()).getAddress();
     }
 
-    private boolean isInIPWhitelist(HttpRequest request) {
-        String addr = getAddress(request);
-//        Loggers.getLogger(getClass()).info("address {}, path {}, request {}",
-//                addr, request.path(), request.params());
-        if (whitelist.isEmpty() || addr.isEmpty())
-            return false;
-        return whitelist.contains(addr);
-    }
 
     /**
      * https://en.wikipedia.org/wiki/Cross-origin_resource_sharing the
@@ -164,4 +187,29 @@ public class HttpBasicServer extends HttpServer {
         }
         return false;
     }
+
+    public void logRequest(final HttpRequest request) {
+      String addr = getAddress(request).getHostAddress();
+      String t = "Authorization:{}, Host:{}, Path:{}, {}:{}, Request-IP:{}, " +
+        "Client-IP:{}, X-Client-IP{}";
+      logger.info(t,
+                  request.header("Authorization"),
+                  request.header("Host"),
+                  request.path(),
+                  xForwardHeader,
+                  request.header(xForwardHeader),
+                  addr,
+                  request.header("X-Client-IP"),
+                  request.header("Client-IP"));
+    }
+
+    public void logUnAuthorizedRequest(final HttpRequest request) {
+        String addr = getAddress(request).getHostAddress();
+        String t = "UNAUTHORIZED type:{}, address:{}, path:{}, request:{},"
+          + "content:{}, credentials:{}";
+        Loggers.getLogger(getClass()).error(t,
+                request.method(), addr, request.path(), request.params(),
+                request.content().toUtf8(), getDecoded(request));
+    }
+
 }
