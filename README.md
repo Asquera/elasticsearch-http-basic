@@ -10,8 +10,8 @@ There is no way to configure this on a per index basis.
 
 |     Http Basic Plugin       | elasticsearch         |
 |-----------------------------|-----------------------|
-| 1.1.0                       | 1.0.0                 |
-| 1.0.4(master)               | 0.90.7                |
+| 1.1.0(master)               | 1.0.0                 |
+| 1.0.4                       | 0.90.7                |
 
 ## Installation
 
