@@ -7,7 +7,6 @@ import org.elasticsearch.node.service.NodeService;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.Base64;
-
 import org.elasticsearch.rest.RestRequest;
 
 import static org.elasticsearch.rest.RestStatus.*;
@@ -16,9 +15,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
 import org.elasticsearch.common.logging.Loggers;
+import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestRequest.Method;
-import org.elasticsearch.rest.StringRestResponse;
 
 // # possible http config
 // http.basic.user: admin
@@ -70,7 +70,7 @@ public class HttpBasicServer extends HttpServer {
 
         // allow health check even without authorization
         if (healthCheck(request)) {
-            channel.sendResponse(new StringRestResponse(OK, "{\"OK\":{}}"));
+            channel.sendResponse(new BytesRestResponse(OK, "{\"OK\":{}}"));
         } else if (allowOptionsForCORS(request) || authBasic(request) || isInIPWhitelist(request)) {
             super.internalDispatchRequest(request, channel);
         } else {
@@ -78,7 +78,7 @@ public class HttpBasicServer extends HttpServer {
             Loggers.getLogger(getClass()).error("UNAUTHORIZED type:{}, address:{}, path:{}, request:{}, content:{}, credentials:{}",
                     request.method(), addr, request.path(), request.params(), request.content().toUtf8(), getDecoded(request));
 
-            StringRestResponse response = new StringRestResponse(UNAUTHORIZED, "Authentication Required");
+            BytesRestResponse response = new BytesRestResponse(UNAUTHORIZED, "Authentication Required");
             response.addHeader("WWW-Authenticate", "Basic realm=\"Restricted\"");
             channel.sendResponse(response);
         }

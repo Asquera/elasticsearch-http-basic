@@ -10,13 +10,14 @@ There is no way to configure this on a per index basis.
 
 |     Http Basic Plugin       | elasticsearch         |
 |-----------------------------|-----------------------|
-| 1.1.0(master)               | 1.0.0                 |
+| 1.2.0(master)               | 1.2.0                 |
+| 1.1.0                       | 1.0.0                 |
 | 1.0.4                       | 0.90.7                |
 
 ## Installation
 
 Download the current version from https://github.com/Asquera/elasticsearch-http-basic/releases and copy it to `plugins/http-basic`.
-    
+
 ## Configuration
 
 The plugin is disabled by default. Enabling basic authorization will disable the default HTTP Transport module.
