@@ -6,3 +6,7 @@
 *~
 deploy.sh
 .gradle
+data
+.project
+.classpath
+.settings
