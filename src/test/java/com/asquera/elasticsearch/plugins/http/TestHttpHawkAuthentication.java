@@ -30,7 +30,7 @@ public class TestHttpHawkAuthentication extends ElasticsearchIntegrationTest {
     @Override
     protected Settings nodeSettings(int nodeOrdinal) {
         return ImmutableSettings.settingsBuilder()
-        		.put("plugin.types", HttpAuthenticationPlugin.class.getName())
+                .put("plugin.types", HttpAuthenticationPlugin.class.getName())
                 .put("force.http.enabled", true)
                 .put("http.basic.user", "Aladdin")
                 .put("http.basic.password", "open sesame")
@@ -54,10 +54,10 @@ public class TestHttpHawkAuthentication extends ElasticsearchIntegrationTest {
              "/_status", 
              address.getAddress().getHostAddress(),
              address.getPort())
-			.credentials("Aladdin", "open sesame", Algorithm.SHA_256)
-//			.tsAndNonce(authHeader.getTs(), authHeader.getNonce())
-//			.hash(authHeader.getHash())
-			.build();
+            .credentials("Aladdin", "open sesame", Algorithm.SHA_256)
+//            .tsAndNonce(authHeader.getTs(), authHeader.getNonce())
+//            .hash(authHeader.getHash())
+            .build();
         headers.put("Authorization", hawk.createAuthorizationHeader().toString());
         HttpClientResponse authResponse = httpClient().request("GET", "/_status", headers);
         assertThat(authResponse.errorCode(), equalTo(RestStatus.OK.getStatus()));
