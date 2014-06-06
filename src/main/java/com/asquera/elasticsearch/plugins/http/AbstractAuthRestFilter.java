@@ -84,7 +84,7 @@ public abstract class AbstractAuthRestFilter extends RestFilter {
         return (request.method() == RestRequest.Method.GET) && path.equals("/");
     }
 
-    protected String getAddress(RestRequest request) {
+    protected String getHostAndPort(RestRequest request) {
         String addr;
         if (xForwardFor.isEmpty()) {
             addr = request.header("Host");
@@ -96,7 +96,10 @@ public abstract class AbstractAuthRestFilter extends RestFilter {
             if (addrIndex >= 0)
                 addr = addr.substring(0, addrIndex);
         }
-
+        return addr;
+    }
+    protected String getAddress(RestRequest request) {
+        String addr = getHostAndPort(request);
         int portIndex = addr.indexOf(":");
         if (portIndex >= 0)
             addr = addr.substring(0, portIndex);

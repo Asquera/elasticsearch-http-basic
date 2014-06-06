@@ -1,9 +1,6 @@
 package com.asquera.elasticsearch.plugins.http;
 
 import static org.elasticsearch.rest.RestStatus.UNAUTHORIZED;
-
-import java.net.InetSocketAddress;
-
 import net.jalg.hawkj.Algorithm;
 import net.jalg.hawkj.AuthHeaderParsingException;
 import net.jalg.hawkj.AuthorizationHeader;
@@ -45,12 +42,19 @@ public class HttpHawkAuthRestFilter extends AbstractAuthRestFilter {
         }
         try {
             AuthorizationHeader authHeader = AuthorizationHeader.authorization(authHeaderStr);
-            InetSocketAddress address = ((InetSocketAddress)request.getLocalAddress());
+            String[] hostAndPort = super.getHostAndPort(request).split(":");
+            int port;
+            if (hostAndPort.length == 2) {
+                port = Integer.parseInt(hostAndPort[1]);
+            } else {
+                port = 80; // TODO if transport is secure then use 443
+            }
+            
             HawkContext hawk = HawkContext.request(
                     request.method().toString(),
                     request.path(), 
-                    address.getAddress().getHostAddress(), 
-                    address.getPort())
+                    hostAndPort[0], 
+                    port)
                 .credentials(this.user, this.password, this.algorithm)
                 .tsAndNonce(authHeader.getTs(), authHeader.getNonce())
                 .hash(authHeader.getHash())
