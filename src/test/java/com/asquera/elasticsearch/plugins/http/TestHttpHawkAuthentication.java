@@ -2,8 +2,12 @@ package com.asquera.elasticsearch.plugins.http;
 
 import static org.hamcrest.Matchers.equalTo;
 
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+
+import net.jalg.hawkj.Algorithm;
+import net.jalg.hawkj.HawkContext;
 
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
@@ -45,7 +49,16 @@ public class TestHttpHawkAuthentication extends ElasticsearchIntegrationTest {
         assertThat(response.getHeader("WWW-Authenticate"), equalTo("Basic realm=\"Restricted\""));
 
         Map<String, String> headers = new HashMap<String, String>();
-        headers.put("Authorization", "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=="); // As seen on Wikipedia
+        InetSocketAddress address = cluster().httpAddresses()[0];
+        HawkContext hawk = HawkContext.request("GET",
+             "/_status", 
+             address.getAddress().getHostAddress(),
+             address.getPort())
+			.credentials("Aladdin", "open sesame", Algorithm.SHA_256)
+//			.tsAndNonce(authHeader.getTs(), authHeader.getNonce())
+//			.hash(authHeader.getHash())
+			.build();
+        headers.put("Authorization", hawk.createAuthorizationHeader().toString());
         HttpClientResponse authResponse = httpClient().request("GET", "/_status", headers);
         assertThat(authResponse.errorCode(), equalTo(RestStatus.OK.getStatus()));
     }
