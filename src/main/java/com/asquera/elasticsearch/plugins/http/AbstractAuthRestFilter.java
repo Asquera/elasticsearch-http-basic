@@ -1,7 +1,6 @@
 package com.asquera.elasticsearch.plugins.http;
 
 import static org.elasticsearch.rest.RestStatus.OK;
-import static org.elasticsearch.rest.RestStatus.UNAUTHORIZED;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -10,7 +9,6 @@ import java.util.Set;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.http.HttpRequest;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestFilter;
@@ -48,7 +46,7 @@ public abstract class AbstractAuthRestFilter extends RestFilter {
                 settings.getAsArray("http.basic.ipwhitelist",
                 new String[]{"localhost", "127.0.0.1"})));
 
-        // for AWS load balancers it is X-Forwarded-For -> hmmh does not work 
+        // for AWS load balancers it is X-Forwarded-For -> hmmh does not work
         this.xForwardFor = settings.get("http.basic.xforward", "");
         this.log = settings.getAsBoolean("http.basic.log", false);
         this.logger = Loggers.getLogger(getClass(), settings);
@@ -74,11 +72,11 @@ public abstract class AbstractAuthRestFilter extends RestFilter {
         	sendAuthenticationChallenge(request, channel);
         }
 	}
-	
+
 	protected abstract boolean isAuthenticated(RestRequest request);
 
 	protected abstract void sendAuthenticationChallenge(RestRequest request, RestChannel channel);
-	
+
 	protected boolean healthCheck(final RestRequest request) {
         String path = request.path();
         return (request.method() == RestRequest.Method.GET) && path.equals("/");
@@ -129,5 +127,5 @@ public abstract class AbstractAuthRestFilter extends RestFilter {
             return true;
         }
         return false;
-    }	
+    }
 }
