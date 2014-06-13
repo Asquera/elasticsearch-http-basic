@@ -4,7 +4,7 @@
 
     <groupId>com.asquera.elasticsearch</groupId>
     <artifactId>elasticsearch-http-basic</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.2</version>
     <packaging>jar</packaging>
 
     <name>Basic and Hawk Authentication Plugin</name>
