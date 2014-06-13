@@ -55,11 +55,22 @@ public class TestHttpHawkAuthentication extends ElasticsearchIntegrationTest {
              address.getAddress().getHostAddress(),
              address.getPort())
             .credentials("Aladdin", "open sesame", Algorithm.SHA_256)
-//            .tsAndNonce(authHeader.getTs(), authHeader.getNonce())
-//            .hash(authHeader.getHash())
             .build();
         headers.put("Authorization", hawk.createAuthorizationHeader().toString());
         HttpClientResponse authResponse = httpClient().request("GET", "/_status", headers);
+        assertThat(authResponse.errorCode(), equalTo(RestStatus.OK.getStatus()));
+
+        // Test with request in URL
+        headers = new HashMap<String, String>();
+        address = cluster().httpAddresses()[0];
+        hawk = HawkContext.request("GET",
+             "/_all/_settings?prefix=index.routing.allocation.",
+             address.getAddress().getHostAddress(),
+             address.getPort())
+            .credentials("Aladdin", "open sesame", Algorithm.SHA_256)
+            .build();
+        headers.put("Authorization", hawk.createAuthorizationHeader().toString());
+        authResponse = httpClient().request("GET", "/_all/_settings?prefix=index.routing.allocation.", headers);
         assertThat(authResponse.errorCode(), equalTo(RestStatus.OK.getStatus()));
 
         // Test with wrong authentication

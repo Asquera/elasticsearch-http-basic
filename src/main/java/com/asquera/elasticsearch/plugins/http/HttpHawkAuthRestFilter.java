@@ -53,7 +53,7 @@ public class HttpHawkAuthRestFilter extends AbstractAuthRestFilter {
 
             HawkContext hawk = HawkContext.request(
                     request.method().toString(),
-                    request.path(),
+                    request.uri(),
                     hostAndPort[0],
                     port)
                 .credentials(this.user, this.password, this.algorithm)
