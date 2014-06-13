@@ -14,7 +14,7 @@ import org.elasticsearch.rest.RestRequest;
 public class HttpHawkAuthRestFilter extends AbstractAuthRestFilter {
 
     protected Algorithm algorithm;
-    
+
     protected HttpHawkAuthRestFilter(Settings settings) {
         super(settings);
         String algorithmStr = settings.get("http.hawk.algorithm", "sha256");
@@ -24,6 +24,7 @@ public class HttpHawkAuthRestFilter extends AbstractAuthRestFilter {
         }
     }
 
+    @Override
     protected void sendAuthenticationChallenge(RestRequest request, RestChannel channel) {
         String addr = getAddress(request);
         logger.error("UNAUTHORIZED type:{}, address:{}, path:{}, request:{}, content:{}",
@@ -49,11 +50,11 @@ public class HttpHawkAuthRestFilter extends AbstractAuthRestFilter {
             } else {
                 port = 80; // TODO if transport is secure then use 443
             }
-            
+
             HawkContext hawk = HawkContext.request(
                     request.method().toString(),
-                    request.path(), 
-                    hostAndPort[0], 
+                    request.path(),
+                    hostAndPort[0],
                     port)
                 .credentials(this.user, this.password, this.algorithm)
                 .tsAndNonce(authHeader.getTs(), authHeader.getNonce())
