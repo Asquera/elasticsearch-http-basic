@@ -38,10 +38,6 @@ $ curl -v --user my_username:my_password localhost:9200/foo # works
 $ curl -v --user my_username:password localhost:9200/foo # sends 401
 ```
 
-## Problems
-
-This will not send WWW-Authorize headers - this is due to elasticsearch not allowing to add custom headers to responses.
-
 ## Issues
 
 Please file your issue here: https://github.com/Asquera/elasticsearch-http-basic/issues
