@@ -2,7 +2,7 @@
 
 This plugin provides an extension of ElasticSearchs HTTP Transport module to enable HTTP Basic authorization.
 
-Requesting / does not request authentication to simplify health heck configuration.
+Requesting / does not request authentication to simplify health check configuration.
 
 There is no way to configure this on a per index basis.
 
