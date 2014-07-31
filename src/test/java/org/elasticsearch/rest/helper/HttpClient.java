@@ -38,7 +38,9 @@ public class HttpClient {
     private final URL baseUrl;
 
     public HttpClient(TransportAddress transportAddress) {
-        InetSocketAddress address = ((InetSocketTransportAddress) transportAddress).address();
+        this(((InetSocketTransportAddress) transportAddress).address());
+    }
+    public HttpClient(InetSocketAddress address) {
         try {
             baseUrl = new URL("http", address.getAddress().getHostAddress(), address.getPort(), "/");
         } catch (MalformedURLException e) {

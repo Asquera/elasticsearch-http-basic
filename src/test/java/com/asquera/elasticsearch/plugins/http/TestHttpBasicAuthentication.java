@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.http.HttpServerTransport;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.rest.helper.HttpClient;
 import org.elasticsearch.rest.helper.HttpClientResponse;
@@ -50,8 +49,7 @@ public class TestHttpBasicAuthentication extends ElasticsearchIntegrationTest {
     }
 
     private HttpClient httpClient() {
-        HttpServerTransport httpServerTransport = cluster().getDataNodeInstance(HttpServerTransport.class);
-        return new HttpClient(httpServerTransport.boundAddress().publishAddress());
+    	return new HttpClient(cluster().httpAddresses()[0]);
     }
 
 }

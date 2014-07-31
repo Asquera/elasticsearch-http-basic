@@ -20,8 +20,8 @@ public class HttpBasicAuthRestAction extends BaseRestHandler {
     }
 
 	@Override
-	public void handleRequest(RestRequest request, RestChannel channel)
-			throws Exception {
+	protected void handleRequest(RestRequest request, RestChannel channel,
+			Client client) throws Exception {
 		// no-op: never called as it is never registered
 	}
 
