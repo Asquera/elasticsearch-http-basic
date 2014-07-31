@@ -64,12 +64,12 @@ public abstract class AbstractAuthRestFilter extends RestFilter {
                     request.header("X-Client-IP"), request.header("Client-IP"));
         }
         // allow health check even without authorization
-        if (healthCheck(request)) {
+        if (allowOptionsForCORS(request) || isInIPWhitelist(request) || isAuthenticated(request)) {
+        	  filterChain.continueProcessing(request, channel);
+        } else if (healthCheck(request)) {
             channel.sendResponse(new BytesRestResponse(OK, "{\"OK\":{}}"));
-        } else if (allowOptionsForCORS(request) || isInIPWhitelist(request) || isAuthenticated(request)) {
-        	filterChain.continueProcessing(request, channel);
         } else {
-        	sendAuthenticationChallenge(request, channel);
+        	  sendAuthenticationChallenge(request, channel);
         }
 	}
 
