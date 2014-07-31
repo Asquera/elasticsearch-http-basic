@@ -5,6 +5,8 @@ import net.jalg.hawkj.Algorithm;
 import net.jalg.hawkj.AuthHeaderParsingException;
 import net.jalg.hawkj.AuthorizationHeader;
 import net.jalg.hawkj.HawkContext;
+import net.jalg.hawkj.HawkWwwAuthenticateContext;
+import net.jalg.hawkj.HawkWwwAuthenticateContext.HawkWwwAuthenticateContextBuilder;
 
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.rest.BytesRestResponse;
@@ -29,6 +31,19 @@ public class HttpHawkAuthRestFilter extends AbstractAuthRestFilter {
         String addr = getAddress(request);
         logger.error("UNAUTHORIZED type:{}, address:{}, path:{}, request:{}, content:{}",
                 request.method(), addr, request.path(), request.params(), request.content().toUtf8());
+
+/*        long curTime = System.currentTimeMillis() / 1000L;
+        StringBuilder sb = new StringBuilder(64);
+        sb.append("Hawk ts=\"");
+        sb.append(String.valueOf(curTime));
+        sb.append("\" tsm=\"");
+        sb.append(Hawk.calculateTSMac(curTime));
+        sb.append('"');
+        HawkWwwAuthenticateContext wwwAuth = HawkWwwAuthenticateContext.ts()
+        			.credentials(this.user, this.password, this.algorithm).build();
+        wwwAuth.createWwwAuthenticateHeader();
+        BytesRestResponse response = new BytesRestResponse(UNAUTHORIZED, sb.toString());
+*/
 
         BytesRestResponse response = new BytesRestResponse(UNAUTHORIZED, "Authentication Required");
         response.addHeader("WWW-Authenticate", "Basic realm=\"Restricted\"");
