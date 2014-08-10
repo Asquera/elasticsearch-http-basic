@@ -5,6 +5,7 @@ import static org.elasticsearch.rest.RestStatus.OK;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.commons.net.util.SubnetUtils;
 
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
@@ -19,7 +20,7 @@ import org.elasticsearch.rest.RestRequest.Method;
 //# possible http config
 //http.basic.user: admin
 //http.basic.password: password
-//http.basic.ipwhitelist: ["localhost", "somemoreip"]
+//http.basic.ipwhitelist: ["localhost", "somemoreip" , "192.168.1.0/24"]
 //http.basic.xforward: "X-Forwarded-For"
 //# if you use javascript
 //# EITHER $.ajaxSetup({ headers: { 'Authorization': "Basic " + credentials }});
@@ -110,6 +111,11 @@ public abstract class AbstractAuthRestFilter extends RestFilter {
 //                addr, request.path(), request.params());
         if (whitelist.isEmpty() || addr.isEmpty())
             return false;
+        // Check if there are CIDR in whitelist configuration and then use it!
+        if (addr.contains("/")) {
+            SubnetUtils utils = new SubnetUtils(addr);
+            return utils.getInfo().isInRange(addr);
+        }        
         return whitelist.contains(addr);
     }
 
