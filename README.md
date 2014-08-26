@@ -20,7 +20,7 @@ Download the current version from https://github.com/Asquera/elasticsearch-http-
 
 ## Configuration
 
-The plugin is disabled by default. Enabling basic authorization will disable the default HTTP Transport module.
+The plugin is enabled by default. Enabling basic authorization will disable the default HTTP Transport module.
 
 ```
 http.basic.enabled: true
