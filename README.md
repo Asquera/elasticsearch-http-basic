@@ -8,9 +8,10 @@ There is no way to configure this on a per index basis.
 
 ## Version Mapping
 
+
 |     Http Basic Plugin       | elasticsearch         |
 |-----------------------------|-----------------------|
-| 1.2.0(master)               | 1.2.0                 |
+| 1.2.0(master)               | 1.2.0 <= x <= 1.3.2   |
 | 1.1.0                       | 1.0.0                 |
 | 1.0.4                       | 0.90.7                |
 
