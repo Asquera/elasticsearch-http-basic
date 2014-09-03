@@ -20,15 +20,28 @@ Download the current version from https://github.com/Asquera/elasticsearch-http-
 
 ## Configuration
 
-The plugin is enabled by default. Enabling basic authorization will disable the default HTTP Transport module.
+Once the plugin is installed it can be configured in the [elasticsearch modules configuration file](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-configuration.html#settings). See the [elasticserach directory layout information](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-dir-layout.html) for more information about the default paths of an ES installation.
 
-```
-http.basic.enabled: true
-http.basic.user: "my_username"
-http.basic.password: "my_password"
-```
+|     Setting key             |  Default value               | Notes                                                                   |
+|-----------------------------|------------------------------|-------------------------------------------------------------------------|
+| `http.basic.enabled`        | true                         | **true** disables the default ES HTTP Transport module                  |
+| `http.basic.user`           | "admin"                      |                                                                         |
+| `http.basic.pasword`        | "admin_pw"                   |                                                                         |
+| `http.basic.whitelist`      | ["localhost", "127.0.0.1"]   |                                                                         |
+| `http.basic.log`            | false                        | enables pugin logging to ES log                                         |
+| `http.basic.xforward`       | ""                           | example [X-Forwarded-For](http://en.wikipedia.org/wiki/X-Forwarded-For) |
 
 Be aware that the password is stored in plain text.
+
+### configuration example
+
+The following code enables plugin logging, and sets user and password:
+
+```
+http.basic.log: true
+http.basic.user: "some_user"
+http.basic.password: "some_password"
+```
 
 ## Testing
 
