@@ -6,3 +6,9 @@
 *~
 deploy.sh
 .gradle
+.DS_Store
+.classpath
+.metadata/
+.project
+.settings/
+data/
