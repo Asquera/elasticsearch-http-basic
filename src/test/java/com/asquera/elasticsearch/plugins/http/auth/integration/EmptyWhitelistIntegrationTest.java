@@ -33,6 +33,8 @@ import org.elasticsearch.test.rest.client.http.HttpRequestBuilder;
 import org.elasticsearch.test.rest.client.http.HttpResponse;
 import org.junit.Test;
 
+import com.asquera.elasticsearch.plugins.http.HttpBasicServerPlugin;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -48,7 +50,8 @@ public class EmptyWhitelistIntegrationTest extends ElasticsearchIntegrationTest 
     @Override
     protected Settings nodeSettings(int nodeOrdinal) {
         return ImmutableSettings.settingsBuilder().putArray("http.basic.ipwhitelist", "unkown")
-                .build();
+                 .put("plugin.types", HttpBasicServerPlugin.class.getName())
+                 .build();
     }
 
     @Test

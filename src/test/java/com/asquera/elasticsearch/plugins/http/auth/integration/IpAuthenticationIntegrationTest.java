@@ -34,6 +34,8 @@ import org.elasticsearch.test.rest.client.http.HttpRequestBuilder;
 import org.elasticsearch.test.rest.client.http.HttpResponse;
 import org.junit.Test;
 
+import com.asquera.elasticsearch.plugins.http.HttpBasicServerPlugin;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -57,6 +59,7 @@ public class IpAuthenticationIntegrationTest extends ElasticsearchIntegrationTes
                 .putArray("http.basic.ipwhitelist", whitelistedIp)
                 .putArray("http.basic.trusted_proxy_chains", trustedIp + "," + localhost)
                 .put("http.basic.xforward", "X-Forwarded-For")
+                .put("plugin.types", HttpBasicServerPlugin.class.getName())
                 .build();
     }
 

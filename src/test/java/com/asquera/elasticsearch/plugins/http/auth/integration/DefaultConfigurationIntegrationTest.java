@@ -30,6 +30,8 @@ import org.elasticsearch.test.rest.client.http.HttpRequestBuilder;
 import org.elasticsearch.test.rest.client.http.HttpResponse;
 import org.junit.Test;
 
+import com.asquera.elasticsearch.plugins.http.HttpBasicServerPlugin;
+
 import static org.hamcrest.Matchers.equalTo;
 
 /**
@@ -41,6 +43,7 @@ public class DefaultConfigurationIntegrationTest extends ElasticsearchIntegratio
     @Override
     protected Settings nodeSettings(int nodeOrdinal) {
         return ImmutableSettings.settingsBuilder()
+                .put("plugin.types", HttpBasicServerPlugin.class.getName())
                 .build();
     }
 
