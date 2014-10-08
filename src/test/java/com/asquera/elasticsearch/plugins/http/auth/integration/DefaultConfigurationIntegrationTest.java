@@ -18,33 +18,24 @@
  */
 package com.asquera.elasticsearch.plugins.http.auth.integration;
 
-
-import org.apache.http.impl.client.HttpClients;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.test.ElasticsearchIntegrationTest;
 import org.elasticsearch.test.ElasticsearchIntegrationTest.ClusterScope;
 import org.elasticsearch.test.ElasticsearchIntegrationTest.Scope;
-import org.elasticsearch.test.rest.client.http.HttpRequestBuilder;
 import org.elasticsearch.test.rest.client.http.HttpResponse;
 import org.junit.Test;
-
-import com.asquera.elasticsearch.plugins.http.HttpBasicServerPlugin;
 
 import static org.hamcrest.Matchers.equalTo;
 
 /**
  * Test a rest action that sets special response headers
  */
-@ClusterScope(transportClientRatio = 0.0, scope = Scope.SUITE, numDataNodes = 1)
-public class DefaultConfigurationIntegrationTest extends ElasticsearchIntegrationTest {
+@ClusterScope(scope = Scope.SUITE, numDataNodes = 1)
+public class DefaultConfigurationIntegrationTest extends HttpBasicServerPluginIntegrationTest {
 
     @Override
     protected Settings nodeSettings(int nodeOrdinal) {
-        return ImmutableSettings.settingsBuilder()
-                .put("plugin.types", HttpBasicServerPlugin.class.getName())
-                .build();
+      return builderWithPlugin().build();
     }
 
     @Test
@@ -54,12 +45,8 @@ public class DefaultConfigurationIntegrationTest extends ElasticsearchIntegratio
     }
 
     @Test
-    public void localhostClientIsAuthenticated() throws Exception {
+    public void localhostClientIsIpAuthenticated() throws Exception {
         HttpResponse response = httpClient().path("/_status").execute();
         assertThat(response.getStatusCode(), equalTo(RestStatus.OK.getStatus()));
-    }
-   
-    public static HttpRequestBuilder httpClient() {
-        return new HttpRequestBuilder(HttpClients.createDefault()).host("localhost").port(9200);
     }
 }
