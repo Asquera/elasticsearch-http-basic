@@ -18,25 +18,13 @@
  */
 package com.asquera.elasticsearch.plugins.http.auth.integration;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.Base64;
 import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.test.ElasticsearchIntegrationTest;
 import org.elasticsearch.test.ElasticsearchIntegrationTest.ClusterScope;
-import org.elasticsearch.test.rest.client.http.HttpGetWithEntity;
 import org.elasticsearch.test.rest.client.http.HttpRequestBuilder;
 import org.elasticsearch.test.rest.client.http.HttpResponse;
 import org.junit.Test;
-
-import com.asquera.elasticsearch.plugins.http.HttpBasicServerPlugin;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import static org.elasticsearch.test.ElasticsearchIntegrationTest.Scope;
 import static org.hamcrest.Matchers.equalTo;
@@ -45,71 +33,33 @@ import static org.hamcrest.Matchers.equalTo;
  * Test a rest action that sets special response headers
  */
 @ClusterScope(transportClientRatio = 0.0, scope = Scope.SUITE, numDataNodes = 1)
-public class EmptyWhitelistIntegrationTest extends ElasticsearchIntegrationTest {
+public class EmptyWhitelistIntegrationTest extends HttpBasicServerPluginIntegrationTest {
 
     @Override
     protected Settings nodeSettings(int nodeOrdinal) {
-        return ImmutableSettings.settingsBuilder().putArray("http.basic.ipwhitelist", "unkown")
-                 .put("plugin.types", HttpBasicServerPlugin.class.getName())
+        return  builderWithPlugin().
+                putArray("http.basic.ipwhitelist", "unkown")
                  .build();
     }
 
+// TODO put the set credentials ussing Setter
     @Test
-    public void testHealthCheck() throws Exception {
-        HttpResponse response = httpClient().path("/").execute();
+    public void clientIpAuthenticationFails() throws Exception {
+        HttpResponse response = httpClient().path("/_status").execute();
+        assertThat(response.getStatusCode(), equalTo(RestStatus.UNAUTHORIZED.getStatus()));
+    }
+
+    @Test
+    public void clientGoodCredentialsBasicAuthenticationSuceeds() throws Exception {
+        HttpResponse response = requestWithCredentials("admin:admin_pw")
+          .addHeader("X-Forwarded-For", "1.1.1.1" ).execute();
         assertThat(response.getStatusCode(), equalTo(RestStatus.OK.getStatus()));
     }
 
     @Test
-    public void localhostClientIsNotIpAuthenticated() throws Exception {
-        HttpResponse response = httpClient().path("/_status").execute();
-        assertThat(response.getStatusCode(), equalTo(RestStatus.UNAUTHORIZED.getStatus()));
+    public void clientBadCredentialsBasicAuthenticationFails() throws Exception {
+        HttpResponse response = requestWithCredentials("admin:wrong").execute();
+        assertThat(response.getStatusCode()
+            , equalTo(RestStatus.UNAUTHORIZED.getStatus()));
     }
-    
-    @Test
-    public void localhostClientIsBasicAuthenticated() throws Exception {
-        HttpUriRequest request = httpRequest();
-        String credentials = "admin:admin_pw";
-        request.setHeader("Authorization", "Basic " + Base64.encodeBytes(credentials.getBytes()));
-        CloseableHttpResponse response = closeableHttpClient().execute(request);
-        assertThat(response.getStatusLine().getStatusCode(), equalTo(RestStatus.OK.getStatus()));
-    }
-    
-
-    @Test
-    public void localhostClientIsBasicAuthenticatedPassingXForward() throws Exception {
-        HttpUriRequest request = httpRequest();
-        String credentials = "admin:admin_pw";
-        request.setHeader("Authorization", "Basic " + Base64.encodeBytes(credentials.getBytes()));
-        request.setHeader("X-Forwarded-For", "1.1.1.1" );
-        CloseableHttpResponse response = closeableHttpClient().execute(request);
-        assertThat(response.getStatusLine().getStatusCode(), equalTo(RestStatus.OK.getStatus()));
-    }
-    @Test
-    public void localhostClientNotBasicAuthenticated() throws Exception {
-        HttpUriRequest request = httpRequest();
-        String credentials = "admin:wrong";
-        request.setHeader("Authorization", "Basic " + Base64.encodeBytes(credentials.getBytes()));
-        CloseableHttpResponse response = closeableHttpClient().execute(request);
-        assertThat(response.getStatusLine().getStatusCode(), equalTo(RestStatus.UNAUTHORIZED.getStatus()));
-    }
-
-    public static HttpRequestBuilder httpClient() {
-        return new HttpRequestBuilder(HttpClients.createDefault()).host("localhost").port(9200);
-    }
-   
-    public static HttpUriRequest httpRequest() {
-      HttpUriRequest httpUriRequest = null;
-          try {
-            httpUriRequest = new HttpGetWithEntity(new URI("http", null, "localhost", 9200, "/_status", null, null));
-                } catch (URISyntaxException e) {
-                  throw new IllegalArgumentException(e);
-                }
-      return httpUriRequest;
-    }
-
-    public static CloseableHttpClient closeableHttpClient() {
-      return HttpClients.createDefault();
-    }
-    
 }
