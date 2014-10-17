@@ -1,7 +1,7 @@
 
-**IMPORTANT NOTICE**: versions 1.0.4 and 1.1.0 are *insecure and should not be used*.
+**IMPORTANT NOTICE**: versions 1.0.4 is *insecure and should not be used*.
 They have a bug that allows an attacker to get ip authentication by setting
-its ip on the 'Host' header. A fix is provided for now for versions v1.2.0 and
+its ip on the 'Host' header. A fix is provided for now for versions v1.1.0, v1.2.0 and
 v.1.3.0 of the plugin.
 
 # HTTP Basic auth for ElasticSearch
