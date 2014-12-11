@@ -121,7 +121,7 @@ public class InetAddressWhitelist {
     SubnetUtils utils = new SubnetUtils(cidrAddr);
     String[] addrs = utils.getInfo().getAllAddresses();
     for (String addr : addrs) {
-      result.add(InetAddress.getByName(next));
+      result.add(InetAddress.getByName(addr));
     }
     return result;
   }
