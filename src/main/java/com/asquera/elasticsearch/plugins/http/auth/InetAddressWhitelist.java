@@ -97,7 +97,7 @@ public class InetAddressWhitelist {
     while (iterator.hasNext()) {
       String next = iterator.next();
       try {
-	if (next.indexOf('/') > -1) {
+	if ((next != null) && (next.indexOf('/') > -1)) {
           listIps.addAll(getInetAddressForCIDR(next));
         }
 	else {
