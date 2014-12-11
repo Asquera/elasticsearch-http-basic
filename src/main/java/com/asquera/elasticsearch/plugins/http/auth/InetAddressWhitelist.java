@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.apache.commons.net.util.SubnetUtils;
+
 /**
  *
  * Wraps the configured whitelisted ips.
@@ -95,7 +97,12 @@ public class InetAddressWhitelist {
     while (iterator.hasNext()) {
       String next = iterator.next();
       try {
-        listIps.add(InetAddress.getByName(next));
+	if (next.indexOf('/') > -1) {
+          listIps.addAll(getInetAddressForCIDR(next));
+        }
+	else {
+          listIps.add(InetAddress.getByName(next));
+	}
       } catch (UnknownHostException e) {
         String template = "an ip set in the whitelist settings raised an " +
           "UnknownHostException: {}, dropping it";
@@ -103,6 +110,20 @@ public class InetAddressWhitelist {
       }
     }
     return new HashSet<InetAddress>(listIps);
+  }
+
+  /**
+   * helper method to get all InetAddress entries for a given CIDR address
+   */
+  static List<InetAddress> getInetAddressForCIDR(String cidrAddr) 
+  throws UnknownHostException {
+    List<InetAddress> result = new ArrayList<InetAddress>();
+    SubnetUtils utils = new SubnetUtils(cidrAddr);
+    String[] addrs = utils.getInfo().getAllAddresses();
+    for (String addr : addrs) {
+      result.add(InetAddress.getByName(next));
+    }
+    return result;
   }
 
   /**
