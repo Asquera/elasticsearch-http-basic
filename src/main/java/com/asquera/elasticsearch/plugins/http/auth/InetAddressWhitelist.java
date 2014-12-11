@@ -96,13 +96,14 @@ public class InetAddressWhitelist {
     Iterator<String> iterator = ips.iterator();
     while (iterator.hasNext()) {
       String next = iterator.next();
+      Loggers.getLogger(InetAddressWhitelist.class).info("Processing ip entry: {}", next);
       try {
-	if ((next != null) && (next.indexOf('/') > -1)) {
+        if ((next != null) && (next.indexOf('/') > -1)) {
           listIps.addAll(getInetAddressForCIDR(next));
         }
-	else {
+        else {
           listIps.add(InetAddress.getByName(next));
-	}
+        }
       } catch (UnknownHostException e) {
         String template = "an ip set in the whitelist settings raised an " +
           "UnknownHostException: {}, dropping it";
@@ -119,8 +120,11 @@ public class InetAddressWhitelist {
   throws UnknownHostException {
     List<InetAddress> result = new ArrayList<InetAddress>();
     SubnetUtils utils = new SubnetUtils(cidrAddr);
+    utils.setInclusiveHostCount(true);
     String[] addrs = utils.getInfo().getAllAddresses();
+    Loggers.getLogger(InetAddressWhitelist.class).info("Processing {} CIDR entries", addrs.length);
     for (String addr : addrs) {
+      Loggers.getLogger(InetAddressWhitelist.class).info("Adding ip entry: {}", addr);
       result.add(InetAddress.getByName(addr));
     }
     return result;
