@@ -49,7 +49,7 @@ public class EmptyWhitelistIntegrationTest extends ElasticsearchIntegrationTest 
 
     @Override
     protected Settings nodeSettings(int nodeOrdinal) {
-        return ImmutableSettings.settingsBuilder().putArray("http.basic.ipwhitelist", "unkown")
+        return ImmutableSettings.settingsBuilder().putArray("http.basic.ipwhitelist", "unknown")
                  .put("plugin.types", HttpBasicServerPlugin.class.getName())
                  .build();
     }
