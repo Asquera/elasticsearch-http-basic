@@ -1,8 +1,8 @@
+[![Build Status](https://travis-ci.org/Asquera/elasticsearch-http-basic.svg?branch=master)](https://travis-ci.org/Asquera/elasticsearch-http-basic)
 
-**IMPORTANT NOTICE**: versions 1.0.4 and 1.1.0 are *insecure and should not be used*.
+**IMPORTANT NOTICE**: versions 1.0.4 is *insecure and should not be used*.
 They have a bug that allows an attacker to get ip authentication by setting
-its ip on the 'Host' header. A fix is provided for versions v1.2.0 and
-v.1.3.0 of the plugin.
+its ip on the 'Host' header.
 
 # HTTP Basic auth for ElasticSearch
 
@@ -18,8 +18,8 @@ There is no way to configure this on a per index basis.
 
 |     Http Basic Plugin       | elasticsearch         |
 |-----------------------------|-----------------------|
-| v1.4.0.Beta1 (1.4.0.Beta1)  | 1.4.0.Beta1           |
-| v1.3.0(master)              | 1.3.0                 |
+| v1.4.0(master)              | 1.4.0                 |
+| v1.3.0                      | 1.3.0                 |
 | v1.2.0                      | 1.2.0                 |
 | 1.1.0                       | 1.0.0                 |
 | 1.0.4                       | 0.90.7                |
