@@ -1,4 +1,3 @@
-
 /*
  * Licensed to Elasticsearch under one or more contributor
  * license agreements. See the NOTICE file distributed with
@@ -19,25 +18,17 @@
  */
 package com.asquera.elasticsearch.plugins.http.auth.integration;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.Base64;
 import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.test.ElasticsearchIntegrationTest;
 import org.elasticsearch.test.ElasticsearchIntegrationTest.ClusterScope;
-import org.elasticsearch.test.rest.client.http.HttpGetWithEntity;
 import org.elasticsearch.test.rest.client.http.HttpRequestBuilder;
 import org.elasticsearch.test.rest.client.http.HttpResponse;
 import org.junit.Test;
 
-import com.asquera.elasticsearch.plugins.http.HttpBasicServerPlugin;
-
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import static org.elasticsearch.test.ElasticsearchIntegrationTest.Scope;
 import static org.hamcrest.Matchers.equalTo;
@@ -46,21 +37,19 @@ import static org.hamcrest.Matchers.equalTo;
  * Test a rest action that sets special response headers
  */
 @ClusterScope(transportClientRatio = 0.0, scope = Scope.SUITE, numDataNodes = 1)
-public class IpAuthenticationIntegrationTest extends ElasticsearchIntegrationTest {
+public class IpAuthenticationIntegrationTest extends HttpBasicServerPluginIntegrationTest {
 
-    protected final String localhost = "127.0.0.1";
     protected final String whitelistedIp = "2.2.2.2";
     protected final String notWhitelistedIp = "3.3.3.3";
     protected final String trustedIp = "4.4.4.4";
 
     @Override
     protected Settings nodeSettings(int nodeOrdinal) {
-        return ImmutableSettings.settingsBuilder()
-                .putArray("http.basic.ipwhitelist", whitelistedIp)
-                .putArray("http.basic.trusted_proxy_chains", trustedIp + "," + localhost)
-                .put("http.basic.xforward", "X-Forwarded-For")
-                .put("plugin.types", HttpBasicServerPlugin.class.getName())
-                .build();
+      return builderWithPlugin()
+        .putArray("http.basic.ipwhitelist", whitelistedIp)
+        .putArray("http.basic.trusted_proxy_chains", trustedIp + "," + localhost)
+        .put("http.basic.xforward", "X-Forwarded-For")
+        .build();
     }
 
     @Test
@@ -70,64 +59,53 @@ public class IpAuthenticationIntegrationTest extends ElasticsearchIntegrationTes
     }
 
     @Test
-    public void localhostClientIsBasicAuthenticated() throws Exception {
-        HttpUriRequest request = httpRequest();
-        String credentials = "admin:admin_pw";
-        request.setHeader("Authorization", "Basic " + Base64.encodeBytes(credentials.getBytes()));
-        CloseableHttpResponse response = closeableHttpClient().execute(request);
-        assertThat(response.getStatusLine().getStatusCode(), equalTo(RestStatus.OK.getStatus()));
+    public void clientGoodCredentialsBasicAuthenticationSuceeds() throws Exception {
+        HttpResponse response = requestWithCredentials("admin:admin_pw")
+          .addHeader("X-Forwarded-For", "1.1.1.1" ).execute();
+        assertThat(response.getStatusCode(), equalTo(RestStatus.OK.getStatus()));
     }
 
     @Test
+    public void clientBadCredentialsBasicAuthenticationFails() throws Exception {
+        HttpResponse response = requestWithCredentials("admin:wrong").execute();
+        assertThat(response.getStatusCode()
+            , equalTo(RestStatus.UNAUTHORIZED.getStatus()));
+    }
+    @Test
     public void proxyViaLocalhostIpAuthenticatesWhitelistedClients() throws Exception {
-        HttpUriRequest request = httpRequest();
-        request.setHeader("X-Forwarded-For", whitelistedIp );
-        CloseableHttpResponse response = closeableHttpClient().execute(request);
-        assertThat(response.getStatusLine().getStatusCode(), equalTo(RestStatus.OK.getStatus()));
-        request = httpRequest();
-        request.setHeader("X-Forwarded-For", notWhitelistedIp + "," + whitelistedIp);
-        response = closeableHttpClient().execute(request);
-        assertThat(response.getStatusLine().getStatusCode(), equalTo(RestStatus.OK.getStatus()));
-        request = httpRequest();
-        request.setHeader("X-Forwarded-For", notWhitelistedIp + "," + whitelistedIp + "," + trustedIp);
-        response = closeableHttpClient().execute(request);
-        assertThat(response.getStatusLine().getStatusCode(), equalTo(RestStatus.OK.getStatus()));
+        List<String> whitelists = new ArrayList<String>();
+        whitelists.add(whitelistedIp);
+        whitelists.add(notWhitelistedIp + "," + whitelistedIp);
+        whitelists.add(notWhitelistedIp + "," + whitelistedIp + "," + trustedIp);
+        Iterator<String> iterator = whitelists.iterator();
+        while (iterator.hasNext()) {
+          String next = iterator.next();
+          HttpResponse response = requestWithCredentials("admin:wrong")
+                                  .addHeader("X-Forwarded-For", next)
+                                  .execute();
+          assertThat(response.getStatusCode(), equalTo(RestStatus.OK.getStatus()));
+        }
     }
 
     @Test
     public void proxyViaLocalhostIpUnauthenticatesNonWhitelistedClients() throws Exception {
-        HttpUriRequest request = httpRequest();
-        request.setHeader("X-Forwarded-For", notWhitelistedIp);
-        CloseableHttpResponse response = closeableHttpClient().execute(request);
-        assertThat(response.getStatusLine().getStatusCode(), equalTo(RestStatus.UNAUTHORIZED.getStatus()));
-        request = httpRequest();
-        request.setHeader("X-Forwarded-For", whitelistedIp + "," + notWhitelistedIp + "," + trustedIp);
-        response = closeableHttpClient().execute(request);
-        assertThat(response.getStatusLine().getStatusCode(), equalTo(RestStatus.UNAUTHORIZED.getStatus()));
-        request = httpRequest();
-        request.setHeader("X-Forwarded-For", "");
-        response = closeableHttpClient().execute(request);
-        assertThat(response.getStatusLine().getStatusCode(), equalTo(RestStatus.UNAUTHORIZED.getStatus()));
-    }
-    
-    public static HttpRequestBuilder httpClient() {
-        return new HttpRequestBuilder(HttpClients.createDefault())
-          .host("localhost").port(9200);
-    }
-   
-    public static HttpUriRequest httpRequest() {
-      HttpUriRequest httpUriRequest = null;
-          try {
-            httpUriRequest = new HttpGetWithEntity(new URI("http",
-                  null, "localhost", 9200, "/_status", null, null));
-                } catch (URISyntaxException e) {
-                  throw new IllegalArgumentException(e);
-                }
-      return httpUriRequest;
+        List<String> whitelists = new ArrayList<String>();
+        whitelists.add(notWhitelistedIp);
+        whitelists.add(whitelistedIp + "," + notWhitelistedIp + "," + trustedIp);
+        whitelists.add("");
+        Iterator<String> iterator = whitelists.iterator();
+        while (iterator.hasNext()) {
+          String next = iterator.next();
+          HttpResponse response = requestWithCredentials("admin:wrong")
+                                  .addHeader("X-Forwarded-For", next)
+                                  .execute();
+          assertThat(response.getStatusCode(), equalTo(RestStatus.UNAUTHORIZED.getStatus()));
+        }
     }
 
-    public static CloseableHttpClient closeableHttpClient() {
-      return HttpClients.createDefault();
+    protected HttpRequestBuilder requestWithCredentials(String credentials) throws Exception {
+        return httpClient().path("/_status")
+          .addHeader("Authorization", "Basic " + Base64.encodeBytes(credentials.getBytes()));
     }
-    
+
 }
