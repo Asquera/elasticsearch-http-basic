@@ -1,28 +1,30 @@
 package com.asquera.elasticsearch.plugins.http;
 
-import org.elasticsearch.http.*;
+import com.asquera.elasticsearch.plugins.http.auth.Client;
+import com.asquera.elasticsearch.plugins.http.auth.InetAddressWhitelist;
+import com.asquera.elasticsearch.plugins.http.auth.ProxyChains;
+import com.asquera.elasticsearch.plugins.http.auth.XForwardedFor;
+import org.elasticsearch.common.Base64;
+import org.elasticsearch.common.inject.Inject;
+import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
+import org.elasticsearch.http.HttpChannel;
+import org.elasticsearch.http.HttpRequest;
+import org.elasticsearch.http.HttpServer;
+import org.elasticsearch.http.HttpServerTransport;
 import org.elasticsearch.node.service.NodeService;
+import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestController;
-import org.elasticsearch.common.inject.Inject;
-import org.elasticsearch.common.Base64;
 import org.elasticsearch.rest.RestRequest;
-
-import static org.elasticsearch.rest.RestStatus.*;
+import org.elasticsearch.rest.RestRequest.Method;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import org.elasticsearch.common.logging.Loggers;
-import org.elasticsearch.rest.BytesRestResponse;
-import org.elasticsearch.rest.RestRequest.Method;
-
-import com.asquera.elasticsearch.plugins.http.auth.Client;
-import com.asquera.elasticsearch.plugins.http.auth.InetAddressWhitelist;
-import com.asquera.elasticsearch.plugins.http.auth.ProxyChains;
-import com.asquera.elasticsearch.plugins.http.auth.XForwardedFor;
+import static org.elasticsearch.rest.RestStatus.OK;
+import static org.elasticsearch.rest.RestStatus.UNAUTHORIZED;
 
 // # possible http config
 // http.basic.user: admin
@@ -71,18 +73,18 @@ public class HttpBasicServer extends HttpServer {
     @Override
     public void internalDispatchRequest(final HttpRequest request, final HttpChannel channel) {
         if (log) {
-          logRequest(request);
+            logRequest(request);
         }
-        // allow health check even without authorization
-        if (healthCheck(request)) {
-            channel.sendResponse(new BytesRestResponse(OK, "{\"OK\":{}}"));
-        } else if (authorized(request)) {
+
+        if (authorized(request)) {
             super.internalDispatchRequest(request, channel);
+        } else if (healthCheck(request)) { // display custom health check page when unauthorized (do not display too much server info)
+            channel.sendResponse(new BytesRestResponse(OK, "{\"OK\":{}}"));
         } else {
-          logUnAuthorizedRequest(request);
-          BytesRestResponse response = new BytesRestResponse(UNAUTHORIZED, "Authentication Required");
-          response.addHeader("WWW-Authenticate", "Basic realm=\"Restricted\"");
-          channel.sendResponse(response);
+            logUnAuthorizedRequest(request);
+            BytesRestResponse response = new BytesRestResponse(UNAUTHORIZED, "Authentication Required");
+            response.addHeader("WWW-Authenticate", "Basic realm=\"Restricted\"");
+            channel.sendResponse(response);
         }
     }
 
