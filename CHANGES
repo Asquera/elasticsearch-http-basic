@@ -1,5 +1,0 @@
-Version 1.0.3
-
-* Add Changelog
-* Disable Authentication for `/`, allowing it to be used for healtchecks.
-  - thanks @archiloque 
