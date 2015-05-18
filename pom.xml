@@ -1,110 +1,98 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  exmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.asquera.elasticsearch</groupId>
+  <artifactId>elasticsearch-http-basic</artifactId>
+  <version>1.5.0</version>
+  <packaging>jar</packaging>
+  <name>Elasticsearch Http Basic plugin</name>
+  <description>Adds HTTP Basic authentication (BA) to your Elasticsearch cluster</description>
+  <url>https://github.com/Asquera/elasticsearch-http-basic/</url>
+  <inceptionYear>2011</inceptionYear>
 
-    <groupId>com.asquera.elasticsearch</groupId>
-    <artifactId>elasticsearch-http-basic</artifactId>
-    <version>1.4.1-pre</version>
-    <packaging>jar</packaging>
+  <parent>
+    <groupId>org.elasticsearch</groupId>
+    <artifactId>elasticsearch-parent</artifactId>
+    <version>1.5.0</version>
+  </parent>
 
-    <name>Basic Authentication Plugin</name>
-    <url>http://maven.apache.org</url>
+  <properties>
+    <tests.jvms>1</tests.jvms>
+    <es.logger.level>INFO</es.logger.level>
+  </properties>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <elasticsearch.version>1.4.0</elasticsearch.version>
-        <lucene.version>4.10.2</lucene.version>
-        <lucene.maven.version>4.10.2</lucene.maven.version>
-    </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.3.5</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-all</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.carrotsearch.randomizedtesting</groupId>
+      <artifactId>randomizedtesting-runner</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-test-framework</artifactId>
+    </dependency>
 
-    <dependencies>
+    <dependency>
+      <groupId>org.elasticsearch</groupId>
+      <artifactId>elasticsearch</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
-       <dependency>
-          <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-test-framework</artifactId>
-          <version>${lucene.maven.version}</version>
-          <scope>test</scope>
-        </dependency>
+    <dependency>
+      <groupId>org.elasticsearch</groupId>
+      <artifactId>elasticsearch</artifactId>
+      <type>test-jar</type>
+    </dependency>
 
-        <dependency>
-          <groupId>org.apache.httpcomponents</groupId>
-          <artifactId>httpclient</artifactId>
-          <version>4.3.5</version>
-          <scope>test</scope>
-        </dependency>
+  </dependencies>
 
-        <dependency>
-          <groupId>com.carrotsearch.randomizedtesting</groupId>
-          <artifactId>randomizedtesting-runner</artifactId>
-          <version>2.1.10</version>
-          <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
-            <version>${elasticsearch.version}</version>
-        </dependency>
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>com.carrotsearch.randomizedtesting</groupId>
+        <artifactId>junit4-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 
-        <dependency>
-          <groupId>org.elasticsearch</groupId>
-          <artifactId>elasticsearch</artifactId>
-          <version>${elasticsearch.version}</version>
-          <type>test-jar</type>
-          <scope>test</scope>
-        </dependency>
-
-        <dependency>
-          <groupId>org.hamcrest</groupId>
-          <artifactId>hamcrest-all</artifactId>
-          <version>1.3</version>
-          <scope>test</scope>
-        </dependency>
-
-        <dependency>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-          <version>4.10</version>
-          <scope>test</scope>
-        </dependency>
-
-    </dependencies>
-    <build>
-        <!-- Create a zip file according to elasticsearch naming scheme -->
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.6</version>
-                <executions>
-                    <execution>
-                        <id>zip</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <target>
-                                <zip basedir="${project.build.directory}"
-                                     includes="${project.build.finalName}.jar"
-                                     destfile="${project.build.directory}/${project.artifactId}-${project.version}.zip" />
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <configuration>
-                        <source>1.7</source>
-                        <target>1.7</target>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
+  <repositories>
+    <repository>
+      <id>oss-snapshots</id>
+      <name>Sonatype OSS Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </repository>
+  </repositories>
 </project>

@@ -19,7 +19,7 @@ import org.elasticsearch.common.settings.ImmutableSettings;
  * @author Ernesto Miguez (ernesto.miguez@asquera.de)
  */
 
-public abstract class HttpBasicServerPluginIntegrationTest extends
+public class HttpBasicServerPluginIntegrationTest extends
 ElasticsearchIntegrationTest {
 
   protected final String localhost = "127.0.0.1";

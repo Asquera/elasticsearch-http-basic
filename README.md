@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Asquera/elasticsearch-http-basic.svg?branch=1.4)](https://travis-ci.org/Asquera/elasticsearch-http-basic)
+[![Build Status](https://travis-ci.org/emig/elasticsearch-http-basic.svg?branch=1.5)](https://travis-ci.org/emig/elasticsearch-http-basic)
 
 **IMPORTANT NOTICE**: versions 1.0.4 is *insecure and should not be used*.
 They have a bug that allows an attacker to get ip authentication by setting
