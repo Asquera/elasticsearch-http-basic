@@ -25,7 +25,7 @@ ElasticsearchIntegrationTest {
   protected final String localhost = "127.0.0.1";
 
 
-  public static HttpRequestBuilder httpClient() {
+  public HttpRequestBuilder httpClient() {
     HttpServerTransport httpServerTransport = internalCluster().getDataNodeInstance(HttpServerTransport.class);
     InetSocketAddress address = ((InetSocketTransportAddress) httpServerTransport.boundAddress().publishAddress()).address();
     return new HttpRequestBuilder(HttpClients.createDefault()).host(address.getHostName()).port(address.getPort());
