@@ -102,10 +102,4 @@ public class IpAuthenticationIntegrationTest extends HttpBasicServerPluginIntegr
           assertThat(response.getStatusCode(), equalTo(RestStatus.UNAUTHORIZED.getStatus()));
         }
     }
-
-    protected HttpRequestBuilder requestWithCredentials(String credentials) throws Exception {
-        return httpClient().path("/_status")
-          .addHeader("Authorization", "Basic " + Base64.encodeBytes(credentials.getBytes()));
-    }
-
 }
