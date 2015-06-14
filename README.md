@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/emig/elasticsearch-http-basic.svg?branch=1.5)](https://travis-ci.org/emig/elasticsearch-http-basic)
+[![Build Status](https://travis-ci.org/Asquera/elasticsearch-http-basic.svg?branch=master)](https://travis-ci.org/Asquera/elasticsearch-http-basic)
 
 **IMPORTANT NOTICE**: versions 1.0.4 is *insecure and should not be used*.
 They have a bug that allows an attacker to get ip authentication by setting
@@ -18,7 +18,8 @@ There is no way to configure this on a per index basis.
 
 |     Http Basic Plugin       | elasticsearch         |
 |-----------------------------|-----------------------|
-| v1.4.0(master)              | 1.4.0                 |
+| v1.5.0(master)              | 1.5.x                 |
+| v1.4.0                      | 1.4.0                 |
 | v1.3.0                      | 1.3.0                 |
 | v1.2.0                      | 1.2.0                 |
 | 1.1.0                       | 1.0.0                 |
@@ -26,7 +27,7 @@ There is no way to configure this on a per index basis.
 
 ## Installation
 
-Download the current version from https://github.com/Asquera/elasticsearch-http-basic/releases and copy it to `plugins/http-basic`.
+Download the desired version from https://github.com/Asquera/elasticsearch-http-basic/releases and copy it to `plugins/http-basic`.
 
 ## Configuration
 
@@ -36,8 +37,8 @@ Once the plugin is installed it can be configured in the [elasticsearch modules 
 |-----------------------------------|------------------------------|-------------------------------------------------------------------------|
 | `http.basic.enabled`              | true                         | **true** disables the default ES HTTP Transport module                  |
 | `http.basic.user`                 | "admin"                      |                                                                         |
-| `http.basic.password`              | "admin_pw"                   |                                                                         |
-| `http.basic.ipwhitelist`            | ["localhost", "127.0.0.1"]   | uses Host Name Resolution from [java.net.InetAddress](http://docs.oracle.com/javase/7/docs/api/java/net/InetAddress.html)                     |
+| `http.basic.password`             | "admin_pw"                   |                                                                         |
+| `http.basic.ipwhitelist`          | ["localhost", "127.0.0.1"]   | If set to `false` no ip will be whitelisted. Uses Host Name Resolution from [java.net.InetAddress](http://docs.oracle.com/javase/7/docs/api/java/net/InetAddress.html)                     |
 | `http.basic.trusted_proxy_chains` | []                           | Set an array of trusted proxies ips chains                              |
 | `http.basic.log`                  | false                        | enables plugin logging to ES log. Unauthenticated requests are always logged.                                         |
 | `http.basic.xforward`             | ""                           | most common is [X-Forwarded-For](http://en.wikipedia.org/wiki/X-Forwarded-For) |
@@ -123,14 +124,19 @@ http.basic.trusted_proxy_chains: ["1.1.1.1,2.2.2.2"]
 
 ## Testing
 
+**note:** localhost is a whitelisted ip as default.
+Considering a default configuration with **my_username** and **my_password** configured.
+
+Correct credentials
 ```
-$ curl -v localhost:9200 # works
-$ curl -v --user my_username:my_password localhost:9200/foo # works
+$ curl -v localhost:9200 # works (returns 200) (by default localhost is configured as whitelisted ip)
+$ curl -v --user my_username:my_password no_local_host:9200/foo # works (returns 200) (if credentials are set in configuration)
 ```
 
-**note:** localhost is a whitelisted ip as default.
+Wrong credentials
 ```
-$ curl -v --user my_username:password localhost:9200/foo # sends 401
+$ curl -v --user my_username:wrong_password no_local_host:9200/    # health check, returns 200 with  "{\"OK\":{}}" although Unauthorized
+$ curl -v --user my_username:password no_local_host:9200/foo       # returns 401
 ```
 
 ## Development
@@ -139,8 +145,8 @@ $ curl -v --user my_username:password localhost:9200/foo # sends 401
   Maven is configured to run the unit and integration tests. This plugin makes
   use of [ES Integration Tests](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/integration-tests.html)
 
-  `mvn test` test runs all tests
-  `mvn integration-test` test runs integration tests only
+  `mvn test -Dtests.security.manager=false` test runs all tests
+  `mvn integration-test -Dtests.security.manager=false` test runs integration tests only
 
 ## Issues
 

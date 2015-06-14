@@ -56,9 +56,12 @@ public class HttpBasicServer extends HttpServer {
 
         this.user = settings.get("http.basic.user", "admin");
         this.password = settings.get("http.basic.password", "admin_pw");
-        this.whitelist = new InetAddressWhitelist(
-                settings.getAsArray("http.basic.ipwhitelist",
-                  new String[]{"localhost", "127.0.0.1"}));
+        final boolean whitelistEnabled = settings.getAsBoolean("http.basic.ipwhitelist", true);
+        String [] whitelisted = new String[0];
+        if (whitelistEnabled) {
+            whitelisted = settings.getAsArray("http.basic.ipwhitelist", new String[]{"localhost", "127.0.0.1"});
+        }
+        this.whitelist = new InetAddressWhitelist(whitelisted);
         this.proxyChains = new ProxyChains(
             settings.getAsArray(
               "http.basic.trusted_proxy_chains", new String[]{""}));
