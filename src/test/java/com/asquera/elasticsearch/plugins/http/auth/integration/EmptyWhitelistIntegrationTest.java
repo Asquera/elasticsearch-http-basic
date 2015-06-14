@@ -62,4 +62,11 @@ public class EmptyWhitelistIntegrationTest extends HttpBasicServerPluginIntegrat
         assertThat(response.getStatusCode()
             , equalTo(RestStatus.UNAUTHORIZED.getStatus()));
     }
+
+    @Test
+    public void clientBadCredentialsSanityCheckOk() throws Exception {
+        HttpResponse response = requestWithCredentials("admin:wrong").path("/").execute();
+        assertThat(response.getStatusCode()
+            , equalTo(RestStatus.OK.getStatus()));
+    }
 }
