@@ -33,12 +33,12 @@ import static org.hamcrest.Matchers.equalTo;
  * Test a rest action that sets special response headers
  */
 @ClusterScope(transportClientRatio = 0.0, scope = Scope.SUITE, numDataNodes = 1)
-public class EmptyWhitelistIntegrationTest extends HttpBasicServerPluginIntegrationTest {
+public class DisabledWhitelistIntegrationTest extends HttpBasicServerPluginIntegrationTest {
 
     @Override
     protected Settings nodeSettings(int nodeOrdinal) {
         return  builderWithPlugin().
-                putArray("http.basic.ipwhitelist", "unkown")
+                put("http.basic.ipwhitelist", false)
                  .build();
     }
 
@@ -61,5 +61,12 @@ public class EmptyWhitelistIntegrationTest extends HttpBasicServerPluginIntegrat
         HttpResponse response = requestWithCredentials("admin:wrong").execute();
         assertThat(response.getStatusCode()
             , equalTo(RestStatus.UNAUTHORIZED.getStatus()));
+    }
+
+    @Test
+    public void clientBadCredentialsSanityCheckOk() throws Exception {
+        HttpResponse response = requestWithCredentials("admin:wrong").path("/").execute();
+        assertThat(response.getStatusCode()
+            , equalTo(RestStatus.OK.getStatus()));
     }
 }
