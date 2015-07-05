@@ -21,6 +21,7 @@ import org.elasticsearch.rest.RestRequest.Method;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.net.InetSocketAddress;
 
 import static org.elasticsearch.rest.RestStatus.OK;
@@ -91,9 +92,17 @@ public class HttpBasicServer extends HttpServer {
         }
     }
 
+    // @param an http method
+    // @returns True iff the method is one of the methods used for health check
+    private boolean isHealthCheckMethod(final RestRequest.Method method){
+        final RestRequest.Method[] healthCheckMethods = { RestRequest.Method.GET, RestRequest.Method.HEAD };
+        return Arrays.asList(healthCheckMethods).contains(method);
+    }
+
+    // @param an http Request
+    // @returns True iff we check the root path and is a method allowed for healthCheck
     private boolean healthCheck(final HttpRequest request) {
-        String path = request.path();
-        return (request.method() == RestRequest.Method.GET) && path.equals("/");
+        return request.path().equals("/") && isHealthCheckMethod(request.method());
     }
 
   /**

@@ -5,6 +5,10 @@ file. This file is structured according to http://keepachangelog.com/
 Use  `date "+%Y-%m-%d"` to get the correct date formatting
 
 - - -
+## [Unreleased][unreleased]
+### - Added
+- allow HEAD root url authentication #39
+
 ## [1.5.0][2015-07-04]
 
 ### - Added
