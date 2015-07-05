@@ -204,10 +204,11 @@ public class HttpBasicServer extends HttpServer {
 
     public void logRequest(final HttpRequest request) {
       String addr = getAddress(request).getHostAddress();
-      String t = "Authorization:{}, Host:{}, Path:{}, {}:{}, Request-IP:{}, " +
+      String t = "Authorization:{}, type: {}, Host:{}, Path:{}, {}:{}, Request-IP:{}, " +
         "Client-IP:{}, X-Client-IP{}";
       logger.info(t,
                   request.header("Authorization"),
+                  request.method(),
                   request.header("Host"),
                   request.path(),
                   xForwardHeader,

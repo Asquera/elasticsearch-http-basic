@@ -8,6 +8,7 @@ Use  `date "+%Y-%m-%d"` to get the correct date formatting
 ## [Unreleased][unreleased]
 ### - Added
 - allow HEAD root url authentication #39
+- log http method on any request. #42
 
 ## [1.5.0][2015-07-04]
 
