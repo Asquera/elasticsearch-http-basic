@@ -25,7 +25,7 @@ ElasticsearchIntegrationTest {
   protected final String localhost = "127.0.0.1";
 
 
-  public static HttpRequestBuilder httpClient() {
+  public static HttpRequestBuilder buildHttpClient() {
     HttpServerTransport httpServerTransport = internalCluster().getDataNodeInstance(HttpServerTransport.class);
     InetSocketAddress address = ((InetSocketTransportAddress) httpServerTransport.boundAddress().publishAddress()).address();
     return new HttpRequestBuilder(HttpClients.createDefault()).host(address.getHostName()).port(address.getPort());
@@ -42,7 +42,7 @@ ElasticsearchIntegrationTest {
   }
 
   protected HttpRequestBuilder requestWithCredentials(String credentials) throws Exception {
-        return httpClient().path("/_status")
+        return buildHttpClient().path("/_status")
           .addHeader("Authorization", "Basic " + Base64.encodeBytes(credentials.getBytes()));
     }
 
