@@ -24,6 +24,7 @@ import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.test.ElasticsearchIntegrationTest.ClusterScope;
 import org.elasticsearch.test.rest.client.http.HttpRequestBuilder;
 import org.elasticsearch.test.rest.client.http.HttpResponse;
+import org.apache.http.client.methods.HttpHead;
 import org.junit.Test;
 
 import static org.elasticsearch.test.ElasticsearchIntegrationTest.Scope;
@@ -47,6 +48,19 @@ public class DisabledWhitelistIntegrationTest extends HttpBasicServerPluginInteg
     public void clientIpAuthenticationFails() throws Exception {
         HttpResponse response = httpClient().path("/_status").execute();
         assertThat(response.getStatusCode(), equalTo(RestStatus.UNAUTHORIZED.getStatus()));
+    }
+
+    @Test
+    // GET by default
+    public void testHealthCheck() throws Exception {
+        HttpResponse response = httpClient().path("/").execute();
+        assertThat(response.getStatusCode(), equalTo(RestStatus.OK.getStatus()));
+    }
+
+    @Test
+    public void testHealthCheckHeadMethod() throws Exception {
+        HttpResponse response = httpClient().method(HttpHead.METHOD_NAME).path("/").execute();
+        assertThat(response.getStatusCode(), equalTo(RestStatus.OK.getStatus()));
     }
 
     @Test
