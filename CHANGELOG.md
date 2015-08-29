@@ -9,6 +9,9 @@ Use  `date "+%Y-%m-%d"` to get the correct date formatting
 ### - Added
 - allow HEAD root url authentication #39
 - log http method on any request. #42
+### - Fix
+- test: adapt to method signature change after 1.5.1 #55
+- test: run custom install and test commands in ci
 
 ## [1.5.0][2015-07-04]
 
