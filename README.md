@@ -146,8 +146,14 @@ $ curl -v --user my_username:password no_local_host:9200/foo       # returns 401
   Maven is configured to run the unit and integration tests. This plugin makes
   use of [ES Integration Tests](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/integration-tests.html)
 
-  `mvn test -Dtests.security.manager=false` test runs all tests
-  `mvn integration-test -Dtests.security.manager=false` test runs integration tests only
+  We can configure at the cli the version of ES we want to test against:
+
+  `mvn -Delasticsearch.version=1.5.2 -Dtests.security.manager=false test` runs all tests
+  `mvn -Delasticsearch.version=1.5.2 -Dtests.security.manager=false integration` runs integration tests only
+
+
+### Packaging
+  `mvn -Delasticsearch.version=1.5.2 -Dtests.security.manager=false package` packages the plugin in a `jar` file
 
 ## Issues
 
