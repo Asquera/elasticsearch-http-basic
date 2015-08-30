@@ -1,11 +1,13 @@
 sudo: false
 language: java
-script: ./script/ci/run_build.sh
+install:
+  - mvn install -Delasticsearch.version=$ES_VERSION -DskipTests=true
+script:
+  - mvn -Delasticsearch.version=$ES_VERSION -Dtests.security.manager=false test
 env:
-  - ES_VERSION=1.5.0
   - ES_VERSION=1.5.1
   - ES_VERSION=1.5.2
   - ES_VERSION=1.6.0
 cache:
   directories:
-    - $HOME/.m2
+  - $HOME/.m2

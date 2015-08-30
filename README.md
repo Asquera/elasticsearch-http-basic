@@ -18,7 +18,8 @@ There is no way to configure this on a per index basis.
 
 |     Http Basic Plugin       | elasticsearch         |
 |-----------------------------|-----------------------|
-| v1.5.0(master)              | 1.5.x, 1.6.x          |
+| v1.5.1(master)              | 1.5.1, 1.5.2, 1.6.x   |
+| v1.5.0                      | 1.5.0                 |
 | v1.4.0                      | 1.4.0                 |
 | v1.3.0                      | 1.3.0                 |
 | v1.2.0                      | 1.2.0                 |
