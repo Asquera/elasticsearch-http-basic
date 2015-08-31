@@ -6,8 +6,8 @@ its ip on the 'Host' header.
 
 # HTTP Basic auth for ElasticSearch
 
-This plugin provides an extension of ElasticSearchs HTTP Transport module to enable HTTP Basic authorization and
-Ip based authorization.
+This plugin provides an extension of ElasticSearchs HTTP Transport module to enable HTTP basic authentication and
+Ip based authentication.
 
 Requesting `/` does not request authentication to simplify health check configuration.
 
