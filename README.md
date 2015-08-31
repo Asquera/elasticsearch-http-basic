@@ -4,10 +4,10 @@
 They have a bug that allows an attacker to get ip authentication by setting
 its ip on the 'Host' header.
 
-# HTTP Basic auth for ElasticSearch
+# HTTP Basic / Ip auth for ElasticSearch
 
-This plugin provides an extension of ElasticSearchs HTTP Transport module to enable HTTP basic authentication and
-Ip based authentication.
+This plugin provides an extension of ElasticSearchs HTTP Transport module to enable **HTTP basic authentication** and/or
+**Ip based authentication**.
 
 Requesting `/` does not request authentication to simplify health check configuration.
 
@@ -46,10 +46,14 @@ Once the plugin is installed it can be configured in the [elasticsearch modules 
 
 Be aware that the password is stored in plain text.
 
+## Http basic authentication
+
+see [this article](https://en.wikipedia.org/wiki/Basic_access_authentication)
+
 ## Ip based authentication
 
-A client is **authenticated iff** its **request** is **trusted** and its **ip is whitelisted**.
-A Request from a client connected *directly* (direct client) is **trusted**.  Its ip is the request ip.
+A client is **Ip authenticated iff** its **request** is **trusted** and its **ip is whitelisted**.
+A Request from a client connected *directly* (direct client) is by definition **trusted**.  Its ip is the request ip.
 A Request form a client connected *via proxies* (remote client) is **trusted iff** there is a tail
 subchain of the request chain that matches a tail subchain of the trusted proxy chains.
 
