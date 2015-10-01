@@ -67,6 +67,12 @@
           <scope>test</scope>
         </dependency>
 
+        <dependency>
+        	<groupId>commons-net</groupId>
+        	<artifactId>commons-net</artifactId>
+        	<version>3.3</version>
+        	<scope>provided</scope>
+        </dependency>
     </dependencies>
     <build>
         <!-- Create a zip file according to elasticsearch naming scheme -->

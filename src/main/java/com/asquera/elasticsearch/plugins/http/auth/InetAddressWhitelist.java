@@ -1,4 +1,5 @@
 package com.asquera.elasticsearch.plugins.http.auth;
+import org.apache.commons.net.util.SubnetUtils;
 import org.elasticsearch.common.logging.Loggers;
 
 import java.util.ArrayList;
@@ -90,20 +91,41 @@ public class InetAddressWhitelist {
    *
    */
   static Set<InetAddress> toInetAddress(List<String> ips) {
-    List<InetAddress> listIps = new ArrayList<InetAddress>();
-    Iterator<String> iterator = ips.iterator();
-    while (iterator.hasNext()) {
-      String next = iterator.next();
-      try {
-        listIps.add(InetAddress.getByName(next));
-      } catch (UnknownHostException e) {
-        String template = "an ip set in the whitelist settings raised an " +
-          "UnknownHostException: {}, dropping it";
-        Loggers.getLogger(InetAddressWhitelist.class).info(template, e.getMessage());
-      }
-    }
-    return new HashSet<InetAddress>(listIps);
-  }
+		List<InetAddress> listIps = new ArrayList<InetAddress>();
+		Iterator<String> iterator = ips.iterator();
+		while (iterator.hasNext()) {
+			String next = iterator.next();
+			if (next == null) {
+				continue;
+			}
+
+			try {
+				if (next.contains("/")) {
+					SubnetUtils subnetUtils = new SubnetUtils(next);
+					String[] allAddressesInRange = subnetUtils.getInfo().getAllAddresses();
+					for (String addressInRange : allAddressesInRange) {
+						listIps.add(InetAddress.getByName(addressInRange));
+					}
+				} else {
+					listIps.add(InetAddress.getByName(next));
+				}
+			} catch (UnknownHostException e) {
+				String template = "an ip set in the whitelist settings raised an "
+						+ "UnknownHostException: {}, dropping it";
+				Loggers.getLogger(InetAddressWhitelist.class).info(template, e.getMessage());
+			}
+		}
+
+		try {
+			listIps.add(InetAddress.getByName("localhost"));
+		} catch (UnknownHostException e) {
+			String template = "an ip set in the whitelist settings raised an "
+					+ "UnknownHostException: {}, dropping it";
+			Loggers.getLogger(InetAddressWhitelist.class).info(template, e.getMessage());
+		}
+
+		return new HashSet<InetAddress>(listIps);
+	}
 
   /**
    * delegate method
