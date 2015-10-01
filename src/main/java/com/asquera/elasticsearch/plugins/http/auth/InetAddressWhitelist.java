@@ -107,6 +107,8 @@ public class InetAddressWhitelist {
 					SubnetUtils subnetUtils = new SubnetUtils(next);
 					String[] allAddressesInRange = subnetUtils.getInfo().getAllAddresses();
 					for (String addressInRange : allAddressesInRange) {
+						// Remove "/" that is in front of every address by default.
+						addressInRange = addressInRange.substring(1);
 						listIps.add(InetAddress.getByName(addressInRange));
 					}
 				} else {

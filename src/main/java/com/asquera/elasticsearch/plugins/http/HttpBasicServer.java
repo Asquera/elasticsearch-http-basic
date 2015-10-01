@@ -158,7 +158,7 @@ public class HttpBasicServer extends HttpServer {
                 String givenPass = userAndPassword[1];
                 if (this.user.equals(givenUser) && this.password.equals(givenPass))
                     return true;
-            }
+            }            
         } catch (Exception e) {
             logger.warn("Retrieving of user and password failed for " + decoded + " ," + e.getMessage());
         }
