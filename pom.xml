@@ -55,6 +55,12 @@
       <type>test-jar</type>
     </dependency>
 
+    <dependency>
+    	<groupId>commons-net</groupId>
+    	<artifactId>commons-net</artifactId>
+    	<version>3.3</version>
+    	<scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
