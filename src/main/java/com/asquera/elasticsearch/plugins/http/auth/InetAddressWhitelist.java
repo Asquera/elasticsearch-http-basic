@@ -116,14 +116,6 @@ public class InetAddressWhitelist {
 			}
 		}
 
-		try {
-			listIps.add(InetAddress.getByName("localhost"));
-		} catch (UnknownHostException e) {
-			String template = "an ip set in the whitelist settings raised an "
-					+ "UnknownHostException: {}, dropping it";
-			Loggers.getLogger(InetAddressWhitelist.class).info(template, e.getMessage());
-		}
-
 		return new HashSet<InetAddress>(listIps);
 	}
 
