@@ -99,14 +99,7 @@ public class InetAddressWhitelist {
 		while (iterator.hasNext()) {
 			String next = iterator.next();
 			if (next == null) {
-				try {
-					listIps.add(InetAddress.getByName("localhost"));
-				} catch (UnknownHostException e) {
-					String template = "an ip set in the whitelist settings raised an "
-							+ "UnknownHostException: {}, dropping it";
-					Loggers.getLogger(InetAddressWhitelist.class).info(template, e.getMessage());
-				}
-				continue;
+				next = "localhost";
 			}
 
 			try {
