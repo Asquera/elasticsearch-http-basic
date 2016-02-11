@@ -1,3 +1,6 @@
+**IMPORTANT NOTICE**: This project is currently not supported. We accept pull requests, but we're not doing any feature development/bug fixing
+
+
 [![Build Status](https://travis-ci.org/Asquera/elasticsearch-http-basic.svg?branch=master)](https://travis-ci.org/Asquera/elasticsearch-http-basic)
 
 **IMPORTANT NOTICE**: versions 1.0.4 is *insecure and should not be used*.
