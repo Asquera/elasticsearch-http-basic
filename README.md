@@ -1,5 +1,7 @@
 **IMPORTANT NOTICE**: This project is currently not supported. We accept pull requests, but we're not doing any feature development/bug fixing
 
+For alternatives, see [Search Guard](https://docs.search-guard.com/latest/http-basic-authorization).
+
 
 [![Build Status](https://travis-ci.org/Asquera/elasticsearch-http-basic.svg?branch=master)](https://travis-ci.org/Asquera/elasticsearch-http-basic)
 
