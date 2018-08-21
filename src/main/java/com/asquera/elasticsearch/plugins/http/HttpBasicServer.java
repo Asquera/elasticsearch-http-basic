@@ -130,14 +130,14 @@ public class HttpBasicServer extends HttpServer {
                             new XForwardedFor(xForwardedFor),
                             proxyChains);
       ipAuthorized = client.isAuthorized();
-      if (ipAuthorized) {
-        if (log) {
+      if (log) {
+        if (ipAuthorized) {
           String template = "Ip Authorized client: {}";
           Loggers.getLogger(getClass()).info(template, client);
+        } else {
+          String template = "Ip Unauthorized client: {}";
+          Loggers.getLogger(getClass()).error(template, client);
         }
-      } else {
-        String template = "Ip Unauthorized client: {}";
-        Loggers.getLogger(getClass()).error(template, client);
       }
       return ipAuthorized;
     }
