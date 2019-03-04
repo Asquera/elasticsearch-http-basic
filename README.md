@@ -37,7 +37,7 @@ Download the desired version from https://github.com/Asquera/elasticsearch-http-
 
 ## Configuration
 
-Once the plugin is installed it can be configured in the [elasticsearch modules configuration file](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-configuration.html#settings). See the [elasticserach directory layout information](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-dir-layout.html) for more information about the default paths of an ES installation.
+Once the plugin is installed it can be configured in the [elasticsearch modules configuration file](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-configuration.html#settings). See the [elasticsearch directory layout information](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-dir-layout.html) for more information about the default paths of an ES installation.
 
 |     Setting key                   |  Default value               | Notes                                                                   |
 |-----------------------------------|------------------------------|-------------------------------------------------------------------------|
